@@ -51,12 +51,12 @@ void irq_handler(uint gpio, uint32_t event_mask){
   //uint8_t gpio_value = gpio_get_all() & 0x000000FF;
     bool nRead = gpio_get(PIN_nREAD);
     bool nSLTSEL = gpio_get(PIN_nSLTSEL);
-    if(!nRead && !nSLTSEL){
+    //if(!nRead && !nSLTSEL){
       uint16_t address = get_address();
       uint8_t current_byte = romdata[address-0x4000];
       write_data(current_byte);
       printf("ADDRESS: %x %x\n", address, current_byte);
-    }
+      //}
     setup_data_pins_for_read();
   //printf("GPIO VALUE: %x\n", gpio_value);
 }
@@ -107,19 +107,19 @@ int main()
     printf("Starting new run");
     //clock_t endTime=clock();
     //double executionTime = (double)(endTime-startTime)/CLOCKS_PER_SEC;
-    //gpio_set_irq_enabled_with_callback(PIN_CLK, GPIO_IRQ_EDGE_FALL, true, &dummy_handler);
+    gpio_set_irq_enabled_with_callback(PIN_nCS1, GPIO_IRQ_EDGE_FALL, true, &dummy_handler);
     while(true){
-      //sleep_ms(1000);
-       bool nRead = gpio_get(PIN_nREAD);
-       bool nSLTSEL = gpio_get(PIN_nSLTSEL);
-       bool nCS1 = gpio_get(PIN_nCS1);
-       if(!nRead && !nSLTSEL %% !nCS1){
-	 uint16_t address = get_address();
-	 uint8_t current_byte = romdata[address-0x4000];
-	 write_data(current_byte);
-	 printf("ADDRESS: %x %x\n", address, current_byte);
-	 setup_data_pins_for_read();
-       }
+      sleep_ms(1000);
+      // bool nRead = gpio_get(PIN_nREAD);
+      // bool nSLTSEL = gpio_get(PIN_nSLTSEL);
+      // bool nCS1 = gpio_get(PIN_nCS1);
+      // if(!nRead && !nSLTSEL %% !nCS1){
+      //	 uint16_t address = get_address();
+      //	 uint8_t current_byte = romdata[address-0x4000];
+      //	 write_data(current_byte);
+      //	 printf("ADDRESS: %x %x\n", address, current_byte);
+      //	 setup_data_pins_for_read();
+      // }
      
     }
     
