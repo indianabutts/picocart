@@ -9,7 +9,8 @@ set(CMAKE_CXX_STANDARD 17)
 # (note this can come from environment, CMake cache etc)
 set(PICO_SDK_PATH "/Users/yassir/dev/clang/utils/pico-sdk")
 
-set(PICO_BOARD pico_w CACHE STRING "Board type")
+# set(PICO_BOARD pico_w CACHE STRING "Board type")
+set(PICO_BOARD pico CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -27,11 +28,14 @@ pico_sdk_init()
 
 add_executable(PicoCart PicoCart.c )
 
+pico_generate_pio_header(PicoCart ${CMAKE_CURRENT_LIST_DIR}/add_sm.pio)
+
+
 pico_set_program_name(PicoCart "PicoCart")
 pico_set_program_version(PicoCart "0.1")
 
-pico_enable_stdio_uart(PicoCart 0)
-pico_enable_stdio_usb(PicoCart 1)
+pico_enable_stdio_uart(PicoCart 1)
+pico_enable_stdio_usb(PicoCart 0)
 
 # Add the standard library to the build
 target_link_libraries(PicoCart
@@ -46,7 +50,7 @@ target_include_directories(PicoCart PRIVATE
 # Add any user requested libraries
 target_link_libraries(PicoCart
         hardware_spi
-	hardware_irq	
+	hardware_pio
         )
 
 pico_add_extra_outputs(PicoCart)
