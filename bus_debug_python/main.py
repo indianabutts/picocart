@@ -30,11 +30,12 @@ def loop(mocked=False):
     data_pins.set_as_output()
     control_pins = ControlPins(pulse_label="GPIO21", mocked=mocked)
 
-    start_address = int(input("Please enter start address in hex: 0x"), 16)
-    end_address = int(input("Please enter end_address in hex: 0x"),16)
-
-    for i in range(start_address, end_address):
-        data_pins.set_value(i, 16)
+    start_address = int(input("Please enter start address in hex:"),16)
+    print(f"You entered address: 0x{start_address:0>4X}")
+    end_address = int(input("Please enter number of addresses to iterate: "))
+    print(f"You want to iterate till address: 0x{(start_address+end_address):0>4X}")
+    for i in range(end_address+1):
+        data_pins.set_value(i+start_address, 16)
         control_pins.pulse_signal()
     
 def main(mocked=False):

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 #include "hardware/spi.h"
 #include "hardware/irq.h"
 #include "hardware/pio.h"
@@ -9,37 +10,45 @@
 // SPI Defines
 // We are going to use SPI 0, and allocate it to the following GPIO pins
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define SPI_PORT spi1
-#define PIN_MISO 8
-#define PIN_CS   8
-#define PIN_SCK  10
-#define PIN_MOSI 11
-#define PIN_D0  0
-#define PIN_D1 1
-#define PIN_D2 2
-#define PIN_D3 3
-#define PIN_D4 4
-#define PIN_D5 5
-#define PIN_D6 6
-#define PIN_D7 7
-#define PIN_nAHOE 12
-#define PIN_nALOE 13
-#define PIN_nDOE 14
-#define PIN_nDOUT 16
-#define PIN_nCS1 17
-#define PIN_nCS2 18
-#define PIN_nCS12 19
-#define PIN_nSLTSEL 20
-#define PIN_nREAD 21
-#define PIN_nWRITE 22
-#define PIN_CLK 26
 
-#define P_OUT_nAHOE 12
-#define P_OUT_nALOE 13
-#define P_OUT_nDOE 14
-#define P_OUT_nDOUT 15
-#define P_IN_nREAD 16
-#define P_IN_nWRITE 17
+
+
+
+#define P_IN_nSLTSEL 2
+#define P_IN_nCS1 3
+#define P_IN_nCS2 4
+#define P_IN_nCS12 5
+
+#define P_IN_nREAD 6
+#define P_IN_nWRITE 7
+
+
+#define SPI_PORT spi1
+#define SPI_MISO 8
+#define SPI_CS   9
+#define SPI_SCK  10
+#define SPI_MOSI 11
+
+
+#define P_IO_D0 12
+#define P_IO_D1 13
+#define P_IO_D2 14
+#define P_IO_D3 15
+#define P_IO_D4 16
+#define P_IO_D5 17
+#define P_IO_D6 18
+#define P_IO_D7 19
+
+
+#define P_OUT_nAHOE 20
+#define P_OUT_nALOE 21
+#define P_OUT_nWAIT 22
+#define P_LED 25
+#define P_IN_CLK 26
+#define P_OUT_nDOUT 27
+#define P_OUT_nDOE 28
+
+#define DATA_MASK (1 << P_IO_D0 ) | (1 << P_IO_D1) | (1<<P_IO_D2)| (1<<P_IO_D3)| (1<<P_IO_D4)| (1<<P_IO_D5)| (1<<P_IO_D6)| (1<<P_IO_D7)
 
 
 
@@ -51,28 +60,9 @@ void write_data(uint8_t data);
 void init_pins();
 uint16_t get_address();
 
-void irq_handler(uint gpio, uint32_t event_mask){
-  //uint8_t gpio_value = gpio_get_all() & 0x000000FF;
-    bool nRead = gpio_get(PIN_nREAD);
-    bool nSLTSEL = gpio_get(PIN_nSLTSEL);
-    //if(!nRead && !nSLTSEL){
-      uint16_t address = get_address();
-      uint8_t current_byte = romdata[address-0x4000];
-      write_data(current_byte);
-      printf("ADDRESS: %x %x\n", address, current_byte);
-      //}
-    setup_data_pins_for_read();
-  //printf("GPIO VALUE: %x\n", gpio_value);
-}
 
-void dummy_handler(uint gpio, uint32_t event_mask) {
-  int test = 0;
-  for(int i =0; i < 100; i ++){
-    test ++;
-    if(test>5){
-      printf("%i\n",test);
-    }
-  }
+void core1_uart(){
+
 }
 
 int main()
@@ -80,123 +70,122 @@ int main()
     stdio_init_all();
     init_pins();
     setup_control_pins();
+    gpio_put(P_LED, true);
 
-    // SPI initialisation. This example will use SPI at 1MHz.
-    //spi_init(SPI_PORT, 1000*1000);
-    //gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
-    //gpio_set_function(PIN_CS,   GPIO_FUNC_SIO);
-    //gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
-    //gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
-    //
-    //// Chip select is active-low, so we'll initialise it to a driven-high state
-    //gpio_set_dir(PIN_CS, GPIO_OUT);
-    //gpio_put(PIN_CS, 1);
+    PIO pio = pio0;
 
-    // This test, we will use the tank batallion data above so we can forget about SD for now
-    // Tank BAtallion is 8kb and uses /CS1 which is GPIO17
-    // We also want to watch /SLTSEL (GPIO20) & /READ (GPIO21)
-    
-    //clock_t startTime = clock();
-    //unsigned int romsize = 8192;
-    //unsigned int address = 0;
-    //while(address < romsize){
-    //  uint8_t current_data = data[address];
-    //  //printf("** Address : %x", address);
-    //  //printf("   Data: %x\n",current_data);
-    //  address ++;
-    //  //sleep_ms(10);
-    //}
+    setup_data_pins_for_read();
+    uint offsetAddr = pio_add_program(pio, &address_program);
+    uint smAddr = pio_claim_unused_sm(pio, true);
+    address_init(pio, smAddr, offsetAddr, P_IO_D0, P_OUT_nAHOE);
+    pio_sm_clear_fifos(pio, smAddr);
 
-    sleep_ms(1000);
-    printf("Starting new run");
-    //clock_t endTime=clock();
-    //double executionTime = (double)(endTime-startTime)/CLOCKS_PER_SEC;
-    gpio_set_irq_enabled_with_callback(PIN_nCS1, GPIO_IRQ_EDGE_FALL, true, &dummy_handler);
+    //multicore_launch_core1(core1_uart);
+    puts("\r\n============Starting Program=============\r\n");
+    bool nALOE = false;
+    uint16_t address=0;
+    uint8_t data=0;
     while(true){
-      sleep_ms(1000);
-      // bool nRead = gpio_get(PIN_nREAD);
-      // bool nSLTSEL = gpio_get(PIN_nSLTSEL);
-      // bool nCS1 = gpio_get(PIN_nCS1);
-      // if(!nRead && !nSLTSEL %% !nCS1){
-      //	 uint16_t address = get_address();
-      //	 uint8_t current_byte = romdata[address-0x4000];
-      //	 write_data(current_byte);
-      //	 printf("ADDRESS: %x %x\n", address, current_byte);
-      //	 setup_data_pins_for_read();
-      // }
-     
+      
+      address = (pio_sm_get_blocking(pio, smAddr)>>16);
+      //setup_data_pins_for_write();
+      data= romdata[address-0x4000];
+      //write_data(0xFF);
+      //gpio_put(P_OUT_nALOE, nALOE);
+      //gpio_put(P_OUT_nAHOE, !nALOE);
+      //nALOE = !nALOE;
+      
+      //uint32_t address = 0;
+      //data = 0;
+      //printf("A: 0x%04x\n", address>>16);
+      //setup_data_pins_for_read();
+      
+      //uint16_t address = get_address();
+      if(address==0x4000 || address ==0x4001){
+	printf("A: 0x%04x\tD: 0x%02x\r\n", address,data);
+      }
     }
-    
     return 0;
+}
+
+uint16_t get_address(){
+  gpio_put(P_OUT_nALOE,1);
+  gpio_put(P_OUT_nAHOE,0);
+  uint16_t address = (gpio_get_all() & DATA_MASK) >> 4;
+  gpio_put(P_OUT_nAHOE,1);
+  gpio_put(P_OUT_nALOE,0);
+  return address | ((gpio_get_all() & DATA_MASK) >> P_IO_D0);
+
+
 }
 
 void init_pins(){
   // Start with the Input Pins
-  gpio_init_mask(0b000100011111110111111111111111);
-}
-
-
-uint16_t get_address(){
-  setup_data_pins_for_read();
-  uint32_t mask = (1<<PIN_nDOE) | (1<<PIN_nAHOE)  | (1<<PIN_nALOE) | (1<<PIN_nDOUT);
-
-  uint32_t data = (1<<PIN_nDOE) | (1<<PIN_nAHOE)  | (1<<PIN_nALOE) | (1<<PIN_nDOUT);
-  gpio_set_mask(mask);
-
-  gpio_put(PIN_nALOE, false);
+  //gpio_init_mask(0b011110011111111111111111111100);
   
-  uint16_t low_address = (uint16_t)(gpio_get_all() & 0x000000FF);
+  gpio_init(P_LED);
+  gpio_init(P_IN_CLK);
+  gpio_init(P_IN_nSLTSEL);
+  gpio_init(P_IN_nCS12);
+  gpio_init(P_IN_nCS2);
+  gpio_init(P_IN_nCS1);
+  gpio_init(P_OUT_nWAIT);
+  gpio_init(SPI_MISO);
+  gpio_init(SPI_CS);
+  gpio_init(SPI_SCK);
+  gpio_init(SPI_MOSI);
   
-  data = (1<<PIN_nDOE) | (0<<PIN_nAHOE)  | (1<<PIN_nALOE) | (1<<PIN_nDOUT);
-
-  gpio_set_mask(mask);
-
-  gpio_put(PIN_nAHOE, false);
+  gpio_init(P_OUT_nAHOE);
+  gpio_init(P_OUT_nALOE);
+  gpio_init(P_OUT_nDOE);
+  gpio_init(P_OUT_nDOUT);
+  gpio_init(P_IN_nREAD);
+  gpio_init(P_IN_nWRITE);
   
-  uint16_t upper_address= (uint16_t)(gpio_get_all() & 0x000000FF);
-  data = (1<<PIN_nDOE) | (1<<PIN_nAHOE)  | (1<<PIN_nALOE) | (1<<PIN_nDOUT);
-  gpio_put_masked(mask, data);
-  return upper_address | low_address;
+  gpio_init(P_IO_D0);
+  gpio_init(P_IO_D1);
+  gpio_init(P_IO_D2);
+  gpio_init(P_IO_D3);
+  gpio_init(P_IO_D4);
+  gpio_init(P_IO_D5);
+  gpio_init(P_IO_D6);
+  gpio_init(P_IO_D7);
 }
 
 void write_data(uint8_t data){
-  uint32_t mask = ((1<<PIN_nDOE) | (1<<PIN_nAHOE)  | (1<<PIN_nALOE) | (1<<PIN_nDOUT)) | 0x000000FF;
-  uint32_t gpio_data = data | ((0<<PIN_nDOE) | (1<<PIN_nAHOE)  | (1<<PIN_nALOE) | (0<<PIN_nDOUT));
+  uint32_t mask = ((1<<P_OUT_nDOE) | (1<<P_OUT_nAHOE)  | (1<<P_OUT_nALOE) | (1<<P_OUT_nDOUT) | (data << P_IO_D0)) | DATA_MASK;
+  uint32_t gpio_data = (data << P_IO_D0) | ((0<<P_OUT_nDOE) | (1<<P_OUT_nAHOE)  | (1<<P_OUT_nALOE) | (0<<P_OUT_nDOUT));
+  gpio_put_masked(mask, gpio_data);
 }
 
 void setup_data_pins_for_read(){
-  //gpio_set_dir_in_masked(0x000000FF)
-  gpio_set_dir(PIN_D0, GPIO_IN);
-  gpio_set_dir(PIN_D1, GPIO_IN);
-  gpio_set_dir(PIN_D2, GPIO_IN);
-  gpio_set_dir(PIN_D3, GPIO_IN);
-  gpio_set_dir(PIN_D4, GPIO_IN);
-  gpio_set_dir(PIN_D5, GPIO_IN);
-  gpio_set_dir(PIN_D6, GPIO_IN);
-  gpio_set_dir(PIN_D7, GPIO_IN);
-  gpio_put(PIN_nDOUT, 1);
+  gpio_set_dir_in_masked(DATA_MASK);
+  gpio_put(P_OUT_nDOUT, 1);
 }
 
 void setup_data_pins_for_write(){
-  gpio_set_dir_out_masked(0x000000FF);
-  gpio_put(PIN_nDOUT, 0);
+  gpio_set_dir_out_masked(DATA_MASK);
+  gpio_put(P_OUT_nDOUT, 0);
 }
 void setup_control_pins(){  
-  gpio_set_dir(PIN_nCS1, GPIO_IN);
-  gpio_set_dir(PIN_nCS2, GPIO_IN);
-  gpio_set_dir(PIN_nCS12, GPIO_IN);
-  gpio_set_dir(PIN_nREAD, GPIO_IN);
-  gpio_set_dir(PIN_nWRITE, GPIO_IN);
-  gpio_set_dir(PIN_nSLTSEL, GPIO_IN);
-  gpio_set_dir(PIN_CLK, GPIO_IN);
-  gpio_set_dir(PIN_nDOE, GPIO_OUT);
-  gpio_set_dir(PIN_nAHOE, GPIO_OUT);
-  gpio_set_dir(PIN_nALOE, GPIO_OUT);
-  gpio_set_dir(PIN_nDOUT, GPIO_OUT);
-  gpio_put(PIN_nDOUT, 1);
-  gpio_put(PIN_nDOE, 1);
-  gpio_put(PIN_nAHOE,1);
-  gpio_put(PIN_nALOE, 1);
+  gpio_set_dir(P_IN_nCS1, GPIO_IN);
+  gpio_set_dir(P_IN_nCS2, GPIO_IN);
+  gpio_set_dir(P_IN_nCS12, GPIO_IN);
+  gpio_set_dir(P_IN_nREAD, GPIO_IN);
+  gpio_set_dir(P_IN_nWRITE, GPIO_IN);
+  gpio_set_dir(P_IN_nSLTSEL, GPIO_IN);
+  gpio_set_dir(P_IN_CLK, GPIO_IN);
+  gpio_set_dir(P_OUT_nDOE, GPIO_OUT);
+  gpio_set_dir(P_OUT_nAHOE, GPIO_OUT);
+  gpio_set_dir(P_OUT_nALOE, GPIO_OUT);
+  gpio_set_dir(P_OUT_nDOUT, GPIO_OUT);
+  gpio_set_dir(P_OUT_nWAIT, GPIO_OUT);
+  gpio_set_dir(P_LED, GPIO_OUT);
+  gpio_put(P_OUT_nDOUT, 1);
+  gpio_put(P_OUT_nDOE, 1);
+  gpio_put(P_OUT_nAHOE,1);
+  gpio_put(P_OUT_nALOE, 1);
+  gpio_put(P_OUT_nWAIT,1);
 
 }
 

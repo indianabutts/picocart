@@ -73,11 +73,16 @@ class ControlPins:
             self.input_klass = MockInputDevice
 
         self.pulse_pin = self.output_klass(
-            pulse_label, active_high=True, initial_value=False
+            pulse_label, active_high=False, initial_value=False
         )
 
     def pulse_signal(self):
         if self.mocked:
             print("Pulsing Control Line")
+        print(self.pulse_pin.value)
         self.pulse_pin.on()
+        for i in range(100):
+            pass
+        print(self.pulse_pin.value)
         self.pulse_pin.off()
+        print(self.pulse_pin.value)

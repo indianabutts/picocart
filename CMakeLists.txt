@@ -1,6 +1,6 @@
 # Generated Cmake Pico project file
 
-cmake_minimum_required(VERSION 3.13)
+  cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -51,6 +51,7 @@ target_include_directories(PicoCart PRIVATE
 target_link_libraries(PicoCart
         hardware_spi
 	hardware_pio
+	pico_multicore
         )
 
 pico_add_extra_outputs(PicoCart)
