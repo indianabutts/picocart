@@ -17,10 +17,7 @@ nop side 0x1
 nop [3]
 nop [3]
 nop [3]
-nop [3]
-nop [3]
 in pins, 8
-nop [3]
 nop [3]
 nop [3]
 nop [3]
@@ -28,17 +25,11 @@ nop side 0x2
 nop [3]
 nop [3]
 nop [3]
-nop [3]
-nop [3]
 in pins, 8
 nop [3]
 nop [3]
 nop [3]
-nop [3]
-nop [3]
 nop side 0x3
-nop [3]
-nop [3]
 nop [3]
 nop [3]
 nop [3]
