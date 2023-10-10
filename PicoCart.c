@@ -12,8 +12,10 @@ int main()
     FRESULT fr;
     FATFS fs;
     FIL fil;
+    UINT file_size=0;
     int ret;
-    char buf[100];
+    char file_buffer[65536];
+    memset(file_buffer, 0, sizeof file_buffer);
     char filename[] = "tank2.txt";
     char tank[] = "Tank Battalion (1984)(Namcot)(JP).rom";
     stdio_init_all();
@@ -31,39 +33,13 @@ int main()
     }
 
     fr = f_open(&fil, tank, FA_READ);
-    if (fr != FR_OK) {
-        printf("ERROR: Could not open file (%d)\r\n", fr);
+    if (fr != FR_OK){
+        printf("ERROR: Could not open file\r\n");
         while (true);
     }
-    char tank_buf[256];
-    f_read(&fil, &tank_buf, sizeof tank_buf, NULL);
-
-    f_close(&fil);
-
-    // Open file for writing ()
-    fr = f_open(&fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
-    if (fr != FR_OK) {
-        printf("ERROR: Could not open file (%d)\r\n", fr);
-        while (true);
-    }
-
-    // Write something to file
-    //ret = f_printf(&fil, tank_buf);
-    ret = f_write(&fil, tank_buf, sizeof tank_buf, NULL);
-    if (ret < 0) {
-        printf("ERROR: Could not write to file (%d)\r\n", ret);
-        f_close(&fil);
-        while (true);
-    }
-
-
-    // Close file
-    fr = f_close(&fil);
-    if (fr != FR_OK) {
-        printf("ERROR: Could not close file (%d)\r\n", fr);
-        while (true);
-    }
-
+    file_size = f_size(&fil);
+    f_read(&fil, &file_buffer, f_size(&fil), NULL);
+    printf("", file_size);
     // Unmount drive
     f_unmount("0:");
 
