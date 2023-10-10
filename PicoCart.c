@@ -5,10 +5,20 @@
 #include "sd_card.h"
 #include "ff.h"
 #include "includes/fs/fs.h"
-
+#include "includes/control/control.h"
 
 int main()
 {
+    stdio_init_all();
+
+    gpio_init_mask(CONTROL_GPIO_INIT_MASK);
+
+    control_init_state();
+
+    
+
+
+
     FRESULT fr;
     FATFS fs;
     FIL fil;
@@ -18,15 +28,13 @@ int main()
     memset(file_buffer, 0, sizeof file_buffer);
     char rom_check[2];
     uint16_t rom_start_address;
-    char filename[] = "tank2.txt";
     char tank[] = "Tank Battalion (1984)(Namcot)(JP).rom";
-    stdio_init_all();
+
      // Initialize SD card
     if (!sd_init_driver()) {
         printf("ERROR: Could not initialize SD card\r\n");
         while (true);
     }
-
     // Mount drive
     fr = f_mount(&fs, "0:", 1);
     if (fr != FR_OK) {
@@ -50,14 +58,23 @@ int main()
     // Unmount drive
     f_unmount("0:");
 
-    uint8_t byte;
-    for(uint16_t address = start_address_high; address<start_address_high+file_size; address++){
-         byte = file_buffer[address-start_address_high];
-        continue;
-    }
+    control_deassert_wait();
+
+
+
+    uint16_t address = 0;
     // Loop forever doing nothing
+    uint16_t upper_limit = start_address_high + file_size;
     while (true) {
-        sleep_ms(1000);
+        if(gpio_get(PIN_nCS1)==0){
+            gpio_put(POUT_nDOE,1);
+            control_read_address(&address);
+            control_output_data(file_buffer[address-start_address_high]);
+            gpio_put(POUT_nDOE,0);
+            
+        } else {
+            gpio_put(POUT_nDOE, 1);
+        }
     }
 
 
