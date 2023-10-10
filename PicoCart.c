@@ -4,7 +4,7 @@
 #include "hardware/spi.h"
 #include "sd_card.h"
 #include "ff.h"
-
+#include "includes/fs/fs.h"
 
 
 int main()
@@ -14,7 +14,8 @@ int main()
     FIL fil;
     int ret;
     char buf[100];
-    char filename[] = "test03.txt";
+    char filename[] = "tank2.txt";
+    char tank[] = "Tank Battalion (1984)(Namcot)(JP).rom";
     stdio_init_all();
      // Initialize SD card
     if (!sd_init_driver()) {
@@ -29,6 +30,16 @@ int main()
         while (true);
     }
 
+    fr = f_open(&fil, tank, FA_READ);
+    if (fr != FR_OK) {
+        printf("ERROR: Could not open file (%d)\r\n", fr);
+        while (true);
+    }
+    char tank_buf[256];
+    f_read(&fil, &tank_buf, sizeof tank_buf, NULL);
+
+    f_close(&fil);
+
     // Open file for writing ()
     fr = f_open(&fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
     if (fr != FR_OK) {
@@ -37,18 +48,14 @@ int main()
     }
 
     // Write something to file
-    ret = f_printf(&fil, "This is another test\r\n");
+    //ret = f_printf(&fil, tank_buf);
+    ret = f_write(&fil, tank_buf, sizeof tank_buf, NULL);
     if (ret < 0) {
         printf("ERROR: Could not write to file (%d)\r\n", ret);
         f_close(&fil);
         while (true);
     }
-    ret = f_printf(&fil, "of writing to an SD card.\r\n");
-    if (ret < 0) {
-        printf("ERROR: Could not write to file (%d)\r\n", ret);
-        f_close(&fil);
-        while (true);
-    }
+
 
     // Close file
     fr = f_close(&fil);
@@ -66,7 +73,7 @@ int main()
     }
 
 
-    puts("Hello, world!");
+    
 
     return 0;
 }
