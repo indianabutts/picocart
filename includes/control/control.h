@@ -3,23 +3,8 @@
 
 
 #include "pico/stdlib.h"
+#include "../config.h"
 
-#define PIN_nSLTSEL 2
-#define PIN_nCS1 3
-#define PIN_nCS2 4
-#define PIN_nCS12 5
-#define PIN_nREAD 6
-#define PIN_nWRITE 7
-#define PIN_CLK 26
-
-#define POUT_nAHOE 20
-#define POUT_nALOE 21
-#define POUT_nWAIT 22
-#define POUT_nDOUT 27
-#define POUT_nDOE 28
-
-#define PIO_D0 12
-#define PIO_D_END PIO_D0+7
 
 
 #define CONTROL_GPIO_INIT_MASK (1<<PIN_nSLTSEL | 1<<PIN_nCS1 | 1<<PIN_nCS2 | 1<<PIN_nCS12 | 1<<PIN_nREAD | 1<<PIN_nWRITE | 1<<PIN_CLK | 1<<POUT_nAHOE | 1<<POUT_nALOE  | 1<<POUT_nWAIT | 1<<POUT_nDOUT | 1<<POUT_nDOE | 1<<PIO_D0 | 1<<(PIO_D0+1) | 1<<(PIO_D0+2) | 1<<(PIO_D0+3) | 1<<(PIO_D0 +4) | 1<<(PIO_D0 +5) | 1<<(PIO_D0 +6) | 1<<(PIO_D0 +7) )

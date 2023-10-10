@@ -25,7 +25,9 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(PicoCart PicoCart.c includes/sd_hw.c)
+add_executable(PicoCart)
+
+pico_generate_pio_header(PicoCart ${CMAKE_CURRENT_SOURCE_DIR}/includes/address_bus/address_bus.pio)
 
 pico_set_program_name(PicoCart "PicoCart")
 pico_set_program_version(PicoCart "0.1")
@@ -33,9 +35,6 @@ pico_set_program_version(PicoCart "0.1")
 pico_enable_stdio_uart(PicoCart 1)
 pico_enable_stdio_usb(PicoCart 0)
 
-# Add the standard library to the build
-target_link_libraries(PicoCart
-        pico_stdlib)
 
 # Add the standard include files to the build
 target_include_directories(PicoCart PRIVATE
@@ -43,11 +42,20 @@ target_include_directories(PicoCart PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
 )
 
+target_sources(PicoCart PUBLIC
+  PicoCart.c
+  includes/sd_hw.c
+  includes/address_bus/address_bus.c
+)
 add_subdirectory(libs/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI build)
 
 # Add any user requested libraries
 target_link_libraries(PicoCart 
+  pico_stdlib
+  pico_multicore
+  hardware_dma
   hardware_spi
+  hardware_pio
   FatFs_SPI
         )
 

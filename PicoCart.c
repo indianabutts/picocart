@@ -7,6 +7,21 @@
 #include "includes/fs/fs.h"
 #include "includes/control/control.h"
 
+
+__time_critical_func(main_loop)(uint16_t start_address_high, char *file_buffer){
+    uint16_t address = 0;
+    while (true) {
+        if(gpio_get(PIN_nCS1)==0){
+            gpio_put(POUT_nDOE,1);
+            control_read_address(&address);
+            control_output_data(file_buffer[address-start_address_high]);       
+            gpio_put(POUT_nDOE,0);          
+        } else {
+            gpio_put(POUT_nDOE, 1);
+        }
+    }
+}
+
 int main()
 {
     stdio_init_all();
@@ -62,23 +77,16 @@ int main()
 
 
 
-    uint16_t address = 0;
+    
     // Loop forever doing nothing
     uint16_t upper_limit = start_address_high + file_size;
-    while (true) {
-        if(gpio_get(PIN_nCS1)==0){
-            gpio_put(POUT_nDOE,1);
-            control_read_address(&address);
-            control_output_data(file_buffer[address-start_address_high]);
-            gpio_put(POUT_nDOE,0);
-            
-        } else {
-            gpio_put(POUT_nDOE, 1);
-        }
-    }
+    
+    main_loop(start_address_high, &file_buffer);
 
 
     
 
     return 0;
 }
+
+
