@@ -6,19 +6,26 @@
 #include "ff.h"
 #include "includes/fs/fs.h"
 #include "includes/control/control.h"
+#include "includes/address_bus/address_bus.h"
 
 
 __time_critical_func(main_loop)(uint16_t start_address_high, char *file_buffer){
     uint16_t address = 0;
+    uint16_t offset_address = 0;
+    uint8_t data = 0;
     while (true) {
-        if(gpio_get(PIN_nCS1)==0){
+        if(gpio_get(PIN_nCS1)==0 && gpio_get(PIN_nSLTSEL)==0){
             gpio_put(POUT_nDOE,1);
             control_read_address(&address);
-            control_output_data(file_buffer[address-start_address_high]);       
-            gpio_put(POUT_nDOE,0);          
+            offset_address = address - start_address_high;
+            data = file_buffer[offset_address];
+            control_output_data(data);       
+            gpio_put(POUT_nDOE,gpio_get(PIN_nREAD));   
+            //printf("Putting Data 0x%02X at 0x%04X \n", data, address);
         } else {
             gpio_put(POUT_nDOE, 1);
         }
+        //puts()
     }
 }
 
@@ -30,9 +37,10 @@ int main()
 
     control_init_state();
 
+    set_sys_clock_khz(CONFIG_SYSCLK * 1000, true);
     
 
-
+    puts("Starting Run");
 
     FRESULT fr;
     FATFS fs;
@@ -44,7 +52,7 @@ int main()
     char rom_check[2];
     uint16_t rom_start_address;
     char tank[] = "Tank Battalion (1984)(Namcot)(JP).rom";
-
+    printf("Loading %s", tank);
      // Initialize SD card
     if (!sd_init_driver()) {
         printf("ERROR: Could not initialize SD card\r\n");
@@ -81,8 +89,10 @@ int main()
     // Loop forever doing nothing
     uint16_t upper_limit = start_address_high + file_size;
     
-    main_loop(start_address_high, &file_buffer);
+    // main_loop(start_address_high, &file_buffer);
 
+    address_bus_init();
+    address_bus_loop();
 
     
 

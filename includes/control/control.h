@@ -30,9 +30,10 @@ uint8_t control_assert_wait(){
 uint8_t control_read_address(uint16_t *address){
     gpio_set_dir_in_masked(CONTROL_GPIO_DATA_MASK);
     gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (0<<POUT_nAHOE | 1<<POUT_nALOE));
+    gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (0<<POUT_nAHOE | 1<<POUT_nALOE));
     (*address) = ((gpio_get_all() & CONTROL_GPIO_DATA_MASK)>>4);
     gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (1<<POUT_nAHOE | 0<<POUT_nALOE));
-    (*address) |= ((gpio_get_all() & CONTROL_GPIO_DATA_MASK)>>PIO_D0);
+    gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (1<<POUT_nAHOE | 0<<POUT_nALOE));
     (*address) |= ((gpio_get_all() & CONTROL_GPIO_DATA_MASK)>>PIO_D0);
     gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (1<<POUT_nAHOE | 1<<POUT_nALOE));
 }

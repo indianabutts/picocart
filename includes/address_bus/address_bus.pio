@@ -11,10 +11,10 @@
 ;   -- Order for the Set Pins are 0bLH
 .wrap_target
 
-    set PINS, 0b01  ;Enable Address High
+    set PINS, 0b01 [1]  ;Enable Address High
     wait 0 GPIO, nSLTSEL_GPIO ;Wait for the SLTSEL to propogate
     in PINS, 8
-    set PINS, 0b10  ;Enable Address Low
+    set PINS, 0b10 [5]  ;Enable Address Low
     in PINS, 8 
 
 .wrap
