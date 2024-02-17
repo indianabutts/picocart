@@ -1,0 +1,20 @@
+.define public CLK_GPIO 26
+.define public nSLTSEL_GPIO 2
+
+.program address_bus
+
+; I think I can make it work with the current pin layout, its not ideal since things aren't very contiguous, but I don't want to reprint a PCB just yet
+; We could do this every clk cycle but that might cause some race issues.
+; We can do it every time SLTSEL is asserted, since that implies either a read/write to the slot which I guess is what we want
+;   -- IN PINS are the D0-7 pins
+;   -- SET PINS are the ALOE/AHOE signals
+;   -- Order for the Set Pins are 0bLH
+.wrap_target
+
+    set PINS, 0b01 [1]  ;Enable Address High
+    wait 0 GPIO, nSLTSEL_GPIO ;Wait for the SLTSEL to propogate
+    in PINS, 8
+    set PINS, 0b10 [5]  ;Enable Address Low
+    in PINS, 8 
+
+.wrap
