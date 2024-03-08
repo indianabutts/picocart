@@ -1289,6 +1289,108 @@
 				)
 			)
 		)
+		(symbol "Connector:TestPoint"
+			(pin_numbers hide)
+			(pin_names
+				(offset 0.762) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Connector_Generic:Conn_01x03"
 			(pin_names
 				(offset 1.016) hide)
@@ -4855,10 +4957,6 @@
 		(uuid "01f9f54f-d501-4c3c-a854-a156c2547b43")
 	)
 	(no_connect
-		(at 279.4 97.79)
-		(uuid "050f847f-cd7f-42c5-8923-55b4c6b607e5")
-	)
-	(no_connect
 		(at 354.33 170.18)
 		(uuid "108da5da-af63-42e0-aa60-7152a8518fce")
 	)
@@ -4893,14 +4991,6 @@
 	(no_connect
 		(at 87.63 48.26)
 		(uuid "72848126-c97f-4114-833d-9e41a9560209")
-	)
-	(no_connect
-		(at 279.4 95.25)
-		(uuid "75fa5093-a8b5-4d07-adf7-ce4b39e1241a")
-	)
-	(no_connect
-		(at 279.4 87.63)
-		(uuid "7e3c4922-4e3a-4862-ad98-2a9ed58f704d")
 	)
 	(no_connect
 		(at 354.33 167.64)
@@ -4941,10 +5031,6 @@
 	(no_connect
 		(at 87.63 73.66)
 		(uuid "e28b96fd-5996-4bdd-9172-6bbe9718bee9")
-	)
-	(no_connect
-		(at 279.4 90.17)
-		(uuid "f54e3da2-a83e-4e0c-b1d3-77beaecafd33")
 	)
 	(bus_entry
 		(at 273.05 194.31)
@@ -13438,6 +13524,71 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 279.4 87.63 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "412e2cb7-ca44-47d0-af72-cd8f451f93d2")
+		(property "Reference" "TP1"
+			(at 273.304 87.63 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 276.098 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 279.4 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 279.4 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 279.4 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0826c2f0-d704-4076-86dc-396adcb89071")
+		)
+		(instances
+			(project "PicoCart_DEBUG"
+				(path "/cb856b35-a0a0-43dd-a381-f441369be4a8"
+					(reference "TP1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 298.45 106.68 0)
 		(unit 1)
@@ -14128,6 +14279,71 @@
 			(project "PicoCart_DEBUG"
 				(path "/cb856b35-a0a0-43dd-a381-f441369be4a8"
 					(reference "#PWR032")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 279.4 95.25 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "507807e1-67e1-445c-b8f5-038a54e5820b")
+		(property "Reference" "TP3"
+			(at 273.304 95.25 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 276.098 92.71 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 279.4 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 279.4 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 279.4 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "93596314-7b88-4678-ab20-6050830dd47a")
+		)
+		(instances
+			(project "PicoCart_DEBUG"
+				(path "/cb856b35-a0a0-43dd-a381-f441369be4a8"
+					(reference "TP3")
 					(unit 1)
 				)
 			)
@@ -17324,6 +17540,71 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 279.4 97.79 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d5651e29-2e9a-4c41-86b0-17e7742b616e")
+		(property "Reference" "TP4"
+			(at 273.304 97.79 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 276.098 95.25 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 279.4 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 279.4 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 279.4 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "aa6d5da8-0bbf-493d-9270-778a9745a19f")
+		)
+		(instances
+			(project "PicoCart_DEBUG"
+				(path "/cb856b35-a0a0-43dd-a381-f441369be4a8"
+					(reference "TP4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Polarized")
 		(at 137.16 264.16 0)
 		(unit 1)
@@ -17582,6 +17863,71 @@
 			(project "PicoCart_DEBUG"
 				(path "/cb856b35-a0a0-43dd-a381-f441369be4a8"
 					(reference "C4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 279.4 90.17 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e1d90ec1-5a71-4dc4-9d5f-7c12675dcf5c")
+		(property "Reference" "TP2"
+			(at 273.304 90.17 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 276.098 87.63 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 279.4 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 279.4 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 279.4 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f491c9bf-d7bf-4e32-afd6-fbd701a29bea")
+		)
+		(instances
+			(project "PicoCart_DEBUG"
+				(path "/cb856b35-a0a0-43dd-a381-f441369be4a8"
+					(reference "TP2")
 					(unit 1)
 				)
 			)
