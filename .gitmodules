@@ -1,3 +1,3 @@
-[submodule "libs/no-OS-FatFS-SD-SPI-RPi-Pico"]
-	path = libs/no-OS-FatFS-SD-SPI-RPi-Pico
+[submodule "rp2040_src/core/libs/no-OS-FatFS-SD-SPI-RPi-Pico"]
+	path = rp2040_src/core/libs/no-OS-FatFS-SD-SPI-RPi-Pico
 	url = https://github.com/carlk3/no-OS-FatFS-SD-SPI-RPi-Pico.git
