@@ -8,7 +8,7 @@ include(pico_sdk_import.cmake)
 project(msx2040 C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 # Initialise pico_sdk from installed location
 # (note this can come from environment, CMake cache etc)
 IF(DEFINED ENV{PICO_SDK_PATH})

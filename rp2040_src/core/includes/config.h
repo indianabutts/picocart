@@ -23,3 +23,32 @@
 #define CONFIG_ADDRESS_PIO pio0
 #define CONFIG_DATA_PIO pio1
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
