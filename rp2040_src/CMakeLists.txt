@@ -36,7 +36,7 @@ add_compile_options(
 )
 
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-Wno-maybe-unitialized)
+  add_compile_options(-Wno-maybe-uninitialized)
 endif()
 
 add_subdirectory(debug_board)

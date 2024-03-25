@@ -2,6 +2,8 @@ add_executable(
   debug_board
   debug_board.c
   includes/ssd1306.c
+  includes/display.c
+  includes/debug_gpio.c
 )
 
 pico_enable_stdio_uart(debug_board 0)
