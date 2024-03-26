@@ -2,20 +2,29 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "hardware/gpio.h"
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "includes/ssd1306.h"
-//#include "includes/display.h"
-//#include "includes/debug_gpio.h"
+#include "includes/display.h"
+#include "includes/debug_gpio.h"
+#include "pico/time.h"
 //#include "pico/time.h"
 
 
 uint32_t callback_count = 0;
+ssd1306_t display;
 
-//void wait_callback(uint gpio, uint32_t events) {
-//  callback_count++;
+void wait_callback(uint gpio, uint32_t events) {
+    printf("Interrupt");
+    callback_count++;
+    ssd1306_clear(&display);
+    display_print(&display, 0, 0, 1, "PicoCart Debug v2");
+    display_fprint(&display, 0, 20, 1, 30, "Callback Count: %d",
+                   callback_count);
+    ssd1306_show(&display);
   
-//}
+}
 
 
 const char data[] = {
@@ -23,35 +32,31 @@ const char data[] = {
 };
 
 
+void new() {
+  stdio_init_all();
+  display = display_init(DISPLAY_I2C_FREQ,26, 27, 128, 64, 0x3C);
+  ssd1306_clear(&display);
+  debug_gpio_init_pins();
+  debug_gpio_setup_wait_irq(&wait_callback);
+  ssd1306_clear(&display);
+  display_print(&display, 0, 0, 1, "PicoCart Debug v2");
+  display_fprint(&display, 0, 20, 1, 30, "Callback Count: %d",
+		 callback_count);
 
-//int main() {
-//  stdio_init_all();
-//  ssd1306_t display;
-//  display_init(&display, 26, 27, 128, 64, 0x78);
-//  ssd1306_clear(&display);
-//  debug_gpio_init_pins();
-//  debug_gpio_setup_wait_irq(&wait_callback);
-//
-//  display_print(&display, 0, 0, 1, "PicoCart Debug v2");
-//  ssd1306_show(&display);
-//
-//  while (true) {
-//    sleep_ms(500);
-//    ssd1306_clear(&display);
-//    display_fprint(&display, 0, 10, 1, 30, "Callback Count: %d",
-//                   callback_count);
-//    ssd1306_show(&display);
-//    printf("Still Running");
-//  }
-//  
-//}
+  ssd1306_show(&display);
+  gpio_pull_up(D_nSLTSEL);
+  while (true) {
+      gpio_put(D_nSLTSEL, 1);
+      sleep_ms(250);
+      gpio_put(D_nSLTSEL, 0);
+      sleep_ms(250);
+  }
+}
 
-/* OLD CODE, Keeping until I can test this against the Pi Pico
- */
 void setup_gpios(void);
 void print_message();
 
-int main(){
+void old(){
   stdio_init_all();
   
     //display_init(&disp, 26, 27, 128, 64, 0x3C);
@@ -63,7 +68,7 @@ int main(){
  while (true) {
      
  }
-    return 0;
+    return;
 }
 
 
@@ -94,4 +99,12 @@ void print_message(void) {
   //display_fprint(disp, 0, 50, 1, 30, "%d Bytes\r\n", sizeof(data));
   ssd1306_show(&disp);
 }
+
+
+
+int main() {
+    new();
+}
+
+
 

@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include "boards/pico.h"
+#include "hardware/gpio.h"
+#include "includes/config.h"
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "sd_card.h"
@@ -29,12 +33,35 @@ __time_critical_func(main_loop)(uint16_t start_address_high, char *file_buffer){
     }
 }
 
+
+bool led_state=false;
+
+void sltsel_callback(uint gpio, uint32_t events) {
+
+    led_state = !led_state;
+    gpio_put(PICO_DEFAULT_LED_PIN, led_state);
+    gpio_put(28, led_state);
+}
+
 int main()
 {
     stdio_init_all();
 
-    gpio_init_mask(CONTROL_GPIO_INIT_MASK);
-
+    gpio_init(28);
+    gpio_init(PICO_DEFAULT_LED_PIN);
+    gpio_init(2);
+    gpio_set_dir(2, false);
+    gpio_set_dir(28, true);
+    gpio_set_dir(PICO_DEFAULT_LED_PIN, true);
+    gpio_set_irq_enabled_with_callback(2, GPIO_IRQ_EDGE_FALL, true, sltsel_callback);
+    while (true) {
+        
+	//       sleep_ms(50);
+        //gpio_put(PICO_DEFAULT_LED_PIN, 0);
+	//gpio_put(28, 0);
+	//sleep_ms(50);
+    }
+    return 0;    
     control_init_state();
 
     set_sys_clock_khz(CONFIG_SYSCLK * 1000, true);
