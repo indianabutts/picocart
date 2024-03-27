@@ -11,12 +11,11 @@
 
 #define POUT_nAHOE 20
 #define POUT_nALOE 21
-#define POUT_nWAIT 22
+#define POUT_nDOE 22
 #define POUT_nDOUT 27
-#define POUT_nDOE 28
+#define POUT_nWAIT 28
 
 #define PIO_D0 12
-#define PIO_D_END PIO_D0+7
 
 #define CONFIG_SYSCLK 127.0
 

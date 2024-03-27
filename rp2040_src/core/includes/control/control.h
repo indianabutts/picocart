@@ -2,6 +2,7 @@
 #define PICO_CONTROL_H
 
 
+#include "hardware/gpio.h"
 #include "pico/stdlib.h"
 #include "../config.h"
 
@@ -12,11 +13,13 @@
 #define CONTROL_GPIO_OUTPUTS_MASK (1<<POUT_nAHOE | 1<<POUT_nALOE  | 1<<POUT_nWAIT | 1<<POUT_nDOUT | 1<<POUT_nDOE)
 #define CONTROL_GPIO_ADDRESS_MASK (1<<POUT_nAHOE | 1<<POUT_nALOE)
 #define CONTROL_GPIO_DATA_MASK (1<<PIO_D0 | 1<<(PIO_D0+1) | 1<<(PIO_D0+2) | 1<<(PIO_D0+3) | 1<<(PIO_D0 +4) | 1<<(PIO_D0 +5) | 1<<(PIO_D0 +6) | 1<<(PIO_D0 +7) )
-uint8_t control_init_state(){
+uint8_t control_init_state() {
+    gpio_init_mask(CONTROL_GPIO_INIT_MASK);
     gpio_set_dir_in_masked(CONTROL_GPIO_INPUTS_MASK);
-    gpio_set_dir_out_masked(CONTROL_GPIO_OUTPUTS_MASK | CONTROL_GPIO_DATA_MASK);
+    gpio_set_dir_out_masked(CONTROL_GPIO_OUTPUTS_MASK);
     gpio_set_mask(CONTROL_GPIO_OUTPUTS_MASK);
-    gpio_clr_mask(1<<POUT_nWAIT | 1<<POUT_nDOUT | 1<<POUT_nAHOE);
+    gpio_clr_mask(1 << POUT_nWAIT | 1 << POUT_nDOUT | 1 << POUT_nAHOE);
+    return 0;
 }
 
 uint8_t control_deassert_wait(){
@@ -24,7 +27,8 @@ uint8_t control_deassert_wait(){
 }
 
 uint8_t control_assert_wait(){
-    gpio_put(POUT_nWAIT,0);
+    gpio_put(POUT_nWAIT, 0);
+    return 0;
 }
 
 uint8_t control_read_address(uint16_t *address){
@@ -35,12 +39,15 @@ uint8_t control_read_address(uint16_t *address){
     gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (1<<POUT_nAHOE | 0<<POUT_nALOE));
     gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (1<<POUT_nAHOE | 0<<POUT_nALOE));
     (*address) |= ((gpio_get_all() & CONTROL_GPIO_DATA_MASK)>>PIO_D0);
-    gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK, 0 | (1<<POUT_nAHOE | 1<<POUT_nALOE));
+    gpio_put_masked(CONTROL_GPIO_ADDRESS_MASK,
+                    0 | (1 << POUT_nAHOE | 1 << POUT_nALOE));
+    return 0;
 }
 
 uint8_t control_output_data(uint8_t data){
     gpio_set_dir_out_masked(CONTROL_GPIO_DATA_MASK);
     gpio_put_masked(CONTROL_GPIO_DATA_MASK, data >> PIO_D0);
+    return 0;
 }
 
 #endif
