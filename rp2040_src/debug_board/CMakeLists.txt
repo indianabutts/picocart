@@ -17,5 +17,3 @@ target_link_libraries(
 )
 
 pico_add_extra_outputs(debug_board)
-
-

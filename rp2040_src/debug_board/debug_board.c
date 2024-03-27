@@ -1,110 +1,118 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
 #include "hardware/gpio.h"
-#include "pico/stdlib.h"
 #include "hardware/i2c.h"
-#include "includes/ssd1306.h"
-#include "includes/display.h"
+#include "includes/data.h"
 #include "includes/debug_gpio.h"
+#include "includes/display.h"
+#include "includes/ssd1306.h"
+#include "pico/stdlib.h"
 #include "pico/time.h"
-//#include "pico/time.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+// #include "pico/time.h"
 
+#define DEBUG_BASE_ADDRESS 0x4000
 
 uint32_t callback_count = 0;
+bool data_ready = false;
 ssd1306_t display;
 
-void wait_callback(uint gpio, uint32_t events) {
-    printf("Interrupt");
-    callback_count++;
-    ssd1306_clear(&display);
-    display_print(&display, 0, 0, 1, "PicoCart Debug v2");
-    display_fprint(&display, 0, 20, 1, 30, "Callback Count: %d",
-                   callback_count);
-    ssd1306_show(&display);
-  
-}
+void wait_callback(uint gpio, uint32_t events) { data_ready = true; }
 
-
-const char data[] = {
-    0x41,0x42,0x43,0x44,0x45,0x46
-};
-
-
-void new() {
-  stdio_init_all();
-  display = display_init(DISPLAY_I2C_FREQ,26, 27, 128, 64, 0x3C);
+void print_standard_message(uint16_t total_bytes, uint16_t current_byte,
+                            uint8_t read_data, uint16_t correct_values,
+                            bool show_complete) {
   ssd1306_clear(&display);
-  debug_gpio_init_pins();
-  debug_gpio_setup_wait_irq(&wait_callback);
-  ssd1306_clear(&display);
-  display_print(&display, 0, 0, 1, "PicoCart Debug v2");
-  display_fprint(&display, 0, 20, 1, 30, "Callback Count: %d",
-		 callback_count);
-
+  display_print(&display, 0, 0, 1, "PicoCart Debug v2.2");
+  display_fprint(&display, 0, 8, 1, 30, "Total Bytes: %d", total_bytes);
+  display_fprint(&display, 0, 16, 1, 30, "ADD: 0x%04X",
+                 DEBUG_BASE_ADDRESS + current_byte);
+  display_fprint(&display, 0, 24, 1, 30, "EXP: 0x%02X REAL: 0x%02X",
+                 debug_data[current_byte], read_data);
+  display_fprint(&display, 0, 56, 1, 30, "%d/%d Passes", correct_values,
+                 total_bytes);
+  if (show_complete) {
+    display_print(&display, 0, 40, 1, "Test Completed...");
+  }
   ssd1306_show(&display);
-  gpio_pull_up(D_nSLTSEL);
-  while (true) {
-      gpio_put(D_nSLTSEL, 1);
-      sleep_ms(250);
-      gpio_put(D_nSLTSEL, 0);
-      sleep_ms(250);
-  }
 }
 
-void setup_gpios(void);
-void print_message();
-
-void old(){
-  stdio_init_all();
-  
-    //display_init(&disp, 26, 27, 128, 64, 0x3C);
-    //Set the GPIO Based on the Pinout
-  //gpio_init_mask(D_GPIO_INIT_MASK);
-
- setup_gpios();
- print_message();
- while (true) {
-     
- }
-    return;
-}
+/*
+  Logic for the debug board should be:
+  - It sets up the address on the board
+  - It sets the AD pins to read mode
+  - It pulses the SLTSEL/CS1 signal
+  - It waits for the /WAIT signal
+  - It reads the data written from the bus
+  - It compares it to the data it expects, and logs the result
+  - Loop until program is finished
 
 
-void setup_gpios(void){
-  i2c_init(i2c1, 400000);
-  gpio_set_function(26, GPIO_FUNC_I2C);
-  gpio_set_function(27, GPIO_FUNC_I2C);
-  gpio_pull_up(26);
-  gpio_pull_up(27);
-}
-
-
-
-void print_message(void) {
-   const char *message[] = {"PicoCart Debug", "I love", "Baba and Mama"};
-
-   ssd1306_t disp;
-     disp.external_vcc = false;
-  ssd1306_init(&disp, 128, 64, 0x3C, i2c1);
-
-
-  ssd1306_clear(&disp);
-  ssd1306_draw_string(&disp, 0, 0, 1, message[0]);
-
-  for (int i=1; i<3; i++){
-    ssd1306_draw_string(&disp, 0, (i + 1) * 10, 1, message[i]);
-  }
-  //display_fprint(disp, 0, 50, 1, 30, "%d Bytes\r\n", sizeof(data));
-  ssd1306_show(&disp);
-}
-
-
+  TODO: Could have it controllable via UART so you can
+  - run individual tests (i.e. check a specific address)
+  - run the full test again
+ */
 
 int main() {
-    new();
+    sleep_ms(1000);
+  uint16_t current_byte = 0;
+  uint8_t read_data = 0x00;
+  uint16_t correct_values = 0;
+  uint pin_value = 0;
+  const uint16_t total_bytes = sizeof(debug_data);
+  stdio_init_all();
+  // Setup Display
+  display = display_init(DISPLAY_I2C_FREQ, 26, 27, 128, 64, 0x3C);
+  ssd1306_clear(&display);
+
+  // Setup GPIO and IRQ
+  debug_gpio_init_pins();
+
+  debug_gpio_set_cs(D_nCS1, 1);
+  debug_gpio_setup_wait_irq(&wait_callback);
+
+  // Print Initial Message to Display
+  print_standard_message(total_bytes, current_byte, read_data, correct_values,
+                         false);
+
+  while (true) {
+      pin_value=~pin_value;
+      gpio_put(D_nCS2, pin_value);
+  }
+  // Setup First Address before entering loop
+
+  debug_gpio_set_ad_dir(true);
+  debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
+  debug_gpio_set_ad_dir(false);
+  debug_gpio_set_cs(D_nCS1, 0);
+  while (true) {
+    if (!data_ready) {
+      gpio_xor_mask(D_nCS2);
+      continue;
+    }
+    debug_gpio_set_cs(D_nCS1, 1);
+
+    data_ready = false;
+    read_data = debug_gpio_read_data();
+    if (read_data == debug_data[current_byte]) {
+      correct_values++;
+    }
+    current_byte++;
+    if (current_byte == total_bytes) {
+      break;
+    }
+
+    print_standard_message(total_bytes, current_byte, read_data, correct_values,
+                           false);
+
+    debug_gpio_set_ad_dir(true);
+    debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
+    debug_gpio_set_ad_dir(false);
+    debug_gpio_set_cs(D_nCS1, 0);
+  }
+  print_standard_message(total_bytes, current_byte, read_data, correct_values,
+                         true);
+  while (true) {
+  }
 }
-
-
-

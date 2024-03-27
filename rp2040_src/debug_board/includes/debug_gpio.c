@@ -4,6 +4,9 @@
 
 void debug_gpio_init_pins() {
   gpio_init_mask(D_GPIO_INIT_MASK);
+  gpio_pull_up(D_nSLTSEL);
+  gpio_pull_up(D_nCS1);
+  gpio_pull_up(D_nCS2);
   gpio_set_dir_masked(D_GPIO_INIT_MASK, D_GPIO_DIR_MASK);
   return;
 }
