@@ -1,92 +1,37 @@
-#include "boards/pico.h"
-#include "debug_board/includes/data.h"
-#include "ff.h"
-#include "hardware/gpio.h"
-#include "hardware/spi.h"
-#include "includes/address_bus/address_bus.h"
-#include "includes/config.h"
-#include "includes/control/control.h"
-#include "includes/data.h"
-#include "includes/fs/fs.h"
-#include "pico/stdio.h"
-#include "pico/stdlib.h"
-#include "sd_card.h"
-#include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
+#include "hardware/gpio.h"
+// 3rd Party Includes
+#include "ff.h"
+// Project Includes
+//#include "includes/sd_hw.c"
+#include "includes/gpio.h"
 
-__time_critical_func(main_loop)(uint16_t start_address_high,
-                                char *file_buffer) {
-  uint16_t address = 0;
-  uint16_t offset_address = 0;
-  uint8_t data = 0;
-  while (true) {
-    if (gpio_get(PIN_nCS1) == 0 && gpio_get(PIN_nSLTSEL) == 0) {
-      gpio_put(POUT_nDOE, 1);
-      control_read_address(&address);
-      offset_address = address - start_address_high;
-      data = file_buffer[offset_address];
-      control_output_data(data);
-      gpio_put(POUT_nDOE, gpio_get(PIN_nREAD));
-      // printf("Putting Data 0x%02X at 0x%04X \n", data, address);
-    } else {
-      gpio_put(POUT_nDOE, 1);
-    }
-    // puts()
-  }
-}
 
-bool led_state = false;
 bool read_requested = false;
-void write_callback(uint gpio, uint32_t events) {
-  read_requested = true;
+
+void cs_callback(uint gpio, uint32_t events) {
+    read_requested = true;
 }
+
 
 int main() {
-  stdio_init_all();
-  control_init_state();
-  gpio_put(POUT_nWAIT, 1);
-  gpio_set_irq_enabled_with_callback(PIN_nCS1, GPIO_IRQ_EDGE_FALL, true,
-                                     write_callback);
-  while (true) {
-    if (!read_requested) {
-      continue;
+    stdio_init_all();
+    core_gpio_init_pins();
+    core_gpio_setup_cs_irq(CS1, cs_callback);
+
+    while (true) {
+      if (!read_requested) {
+	  continue;
+      }
+      read_requested = false;
+      gpio_put(C_POUT_nWAIT, true);
+      gpio_put(C_POUT_nWAIT, false);
+      sleep_ms(1);
+      gpio_put(C_POUT_nWAIT, true);
     }
-    read_requested=false;
-    gpio_put(POUT_nWAIT, 1);
-    gpio_put(POUT_nDOE, 1);
-    uint16_t address;
-    gpio_put(POUT_nDOE, 1);
-    control_read_address(&address);
-    uint16_t offset_address = address - 0x4000;
-    uint8_t data = debug_data[offset_address];
-    control_output_data(data);
-    gpio_put(POUT_nDOE, 0);
-    gpio_put(POUT_nWAIT, 0);
-  }
 }
 
-int backup() {
-  stdio_init_all();
-
-  gpio_init(28);
-  gpio_init(PICO_DEFAULT_LED_PIN);
-  gpio_init(2);
-  gpio_set_irq_enabled_with_callback(PIN_nCS1, GPIO_IRQ_EDGE_FALL, true,
-                                     write_callback);
-  while (true) {
-
-    //       sleep_ms(50);
-    // gpio_put(PICO_DEFAULT_LED_PIN, 0);
-    // gpio_put(28, 0);
-    // sleep_ms(50);
-  }
-  return 0;
-  control_init_state();
-
-  set_sys_clock_khz(CONFIG_SYSCLK * 1000, true);
-
-  puts("Starting Run");
+int sd_card_backup() {
 
   FRESULT fr;
   FATFS fs;
@@ -99,12 +44,14 @@ int backup() {
   uint16_t rom_start_address;
   char tank[] = "Tank Battalion (1984)(Namcot)(JP).rom";
   printf("Loading %s", tank);
+
   // Initialize SD card
   if (!sd_init_driver()) {
     printf("ERROR: Could not initialize SD card\r\n");
     while (true)
       ;
   }
+  
   // Mount drive
   fr = f_mount(&fs, "0:", 1);
   if (fr != FR_OK) {
@@ -112,7 +59,7 @@ int backup() {
     while (true)
       ;
   }
-
+  //Open the file at the specified path
   fr = f_open(&fil, tank, FA_READ);
   if (fr != FR_OK) {
     printf("ERROR: Could not open file\r\n");
@@ -122,23 +69,11 @@ int backup() {
   file_size = f_size(&fil);
   f_read(&fil, &file_buffer, f_size(&fil), NULL);
   printf("", file_size);
-  memcpy(&rom_check, &file_buffer, 2);
-  uint16_t start_address_high = (uint16_t)file_buffer[3] << 8;
-  uint16_t start_address_low = (uint16_t)file_buffer[2];
 
-  rom_start_address = start_address_high + start_address_low;
+  //Copy the first 2 bytes to make sure the rom is valid (0x41 0x42)
+  memcpy(&rom_check, &file_buffer, 2);
+
   // Unmount drive
   f_unmount("0:");
-
-  control_deassert_wait();
-
-  // Loop forever doing nothing
-  uint16_t upper_limit = start_address_high + file_size;
-
-  // main_loop(start_address_high, &file_buffer);
-
-  address_bus_init();
-  address_bus_loop();
-
   return 0;
 }

@@ -12,7 +12,6 @@ void debug_gpio_init_pins() {
 }
 
 void debug_gpio_setup_wait_irq(gpio_irq_callback_t callback) {
-    gpio_pull_up(D_nWAIT);
     gpio_set_irq_enabled_with_callback(D_nWAIT, GPIO_IRQ_EDGE_FALL, true, callback);
     return;
 }

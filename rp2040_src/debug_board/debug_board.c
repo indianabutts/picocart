@@ -24,14 +24,14 @@ void print_standard_message(uint16_t total_bytes, uint16_t current_byte,
                             uint8_t read_data, uint16_t correct_values,
                             bool show_complete) {
   ssd1306_clear(&display);
-  display_print(&display, 0, 0, 1, "PicoCart Debug v2.2");
+  display_print(&display, 0, 0, 1, "PicoCart Debug v0.3");
   display_fprint(&display, 0, 8, 1, 30, "Total Bytes: %d", total_bytes);
   display_fprint(&display, 0, 16, 1, 30, "ADD: 0x%04X",
                  DEBUG_BASE_ADDRESS + current_byte);
   display_fprint(&display, 0, 24, 1, 30, "EXP: 0x%02X REAL: 0x%02X",
                  debug_data[current_byte], read_data);
   display_fprint(&display, 0, 56, 1, 30, "%d/%d Passes", correct_values,
-                 total_bytes);
+                 current_byte);
   if (show_complete) {
     display_print(&display, 0, 40, 1, "Test Completed...");
   }
@@ -55,31 +55,26 @@ void print_standard_message(uint16_t total_bytes, uint16_t current_byte,
  */
 
 int main() {
-    sleep_ms(1000);
   uint16_t current_byte = 0;
   uint8_t read_data = 0x00;
   uint16_t correct_values = 0;
-  uint pin_value = 0;
   const uint16_t total_bytes = sizeof(debug_data);
   stdio_init_all();
   // Setup Display
   display = display_init(DISPLAY_I2C_FREQ, 26, 27, 128, 64, 0x3C);
   ssd1306_clear(&display);
-
   // Setup GPIO and IRQ
   debug_gpio_init_pins();
 
   debug_gpio_set_cs(D_nCS1, 1);
-  debug_gpio_setup_wait_irq(&wait_callback);
+  gpio_pull_up(D_nWAIT);
+  gpio_set_irq_enabled_with_callback(D_nWAIT, GPIO_IRQ_EDGE_FALL, true, wait_callback);
+//  debug_gpio_setup_wait_irq(wait_callback);
 
   // Print Initial Message to Display
   print_standard_message(total_bytes, current_byte, read_data, correct_values,
                          false);
 
-  while (true) {
-      pin_value=~pin_value;
-      gpio_put(D_nCS2, pin_value);
-  }
   // Setup First Address before entering loop
 
   debug_gpio_set_ad_dir(true);
@@ -87,10 +82,10 @@ int main() {
   debug_gpio_set_ad_dir(false);
   debug_gpio_set_cs(D_nCS1, 0);
   while (true) {
-    if (!data_ready) {
-      gpio_xor_mask(D_nCS2);
-      continue;
-    }
+      if (!data_ready) {
+        continue;
+      }
+
     debug_gpio_set_cs(D_nCS1, 1);
 
     data_ready = false;
@@ -104,8 +99,8 @@ int main() {
     }
 
     print_standard_message(total_bytes, current_byte, read_data, correct_values,
-                           false);
-
+                             false);
+    
     debug_gpio_set_ad_dir(true);
     debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
     debug_gpio_set_ad_dir(false);

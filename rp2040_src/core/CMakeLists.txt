@@ -4,7 +4,7 @@ add_executable(
 
 
 
-pico_generate_pio_header(core ${CMAKE_CURRENT_LIST_DIR}/includes/address_bus/address_bus.pio)
+#pico_generate_pio_header(core ${CMAKE_CURRENT_LIST_DIR}/includes/address_bus/address_bus.pio)
 
 pico_set_program_name(core "MSX-2040")
 pico_set_program_version(core "0.1")
@@ -22,7 +22,7 @@ target_include_directories(core PRIVATE
 target_sources(core PRIVATE
   core.c
   includes/sd_hw.c
-  includes/address_bus/address_bus.c
+  includes/gpio.c
 )
 
 add_subdirectory(libs/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI build)
