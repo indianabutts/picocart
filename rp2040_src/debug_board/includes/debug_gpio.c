@@ -35,7 +35,7 @@ void debug_gpio_set_address(uint16_t address) {
 }
 
 uint8_t debug_gpio_read_data() {
-    return (gpio_get_all() & D_GPIO_AD_MASK) >> (D_AD0 + 7);
+  return (gpio_get_all() & D_GPIO_AD_MASK)>>D_AD0;
 }
 
 void debug_gpio_set_cs(debug_gpio_control_signal_t signal_to_assert, uint8_t value) {

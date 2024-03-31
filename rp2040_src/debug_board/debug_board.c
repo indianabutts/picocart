@@ -18,7 +18,7 @@ uint32_t callback_count = 0;
 bool data_ready = false;
 ssd1306_t display;
 
-void wait_callback(uint gpio, uint32_t events) { data_ready = true; }
+void __not_in_flash_func(wait_callback)(uint gpio, uint32_t events) { data_ready = true; }
 
 void print_standard_message(uint16_t total_bytes, uint16_t current_byte,
                             uint8_t read_data, uint16_t correct_values,
@@ -81,8 +81,10 @@ int main() {
   debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
   debug_gpio_set_ad_dir(false);
   debug_gpio_set_cs(D_nCS1, 0);
+
   while (true) {
       if (!data_ready) {
+        ssd1306_clear(&display);
         continue;
       }
 

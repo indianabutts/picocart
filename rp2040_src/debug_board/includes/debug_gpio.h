@@ -33,8 +33,8 @@
   0 | (1 << D_AL_PULSE | 1 << D_AH_PULSE | 0 << D_nDOUT | 1 << D_nCS1 |        \
        1 << D_nCS2 | 1 << D_nWRITE | 1 << D_nREAD | 1 << D_nSLTSEL)
 #define D_GPIO_AD_MASK                                                         \
-  (1 << D_AD0 | 1 << (D_AD0 + 1) | 1 << (D_AD0 + 2) | 1 << (D_AD0 + 3) |       \
-   1 << (D_AD0 + 4) | 1 << (D_AD0 + 5) | 1 << (D_AD0 + 6) | 1 << (D_AD0 + 7))
+  (0x0000 | (1 << D_AD0 | 1 << (D_AD0 + 1) | 1 << (D_AD0 + 2) | 1 << (D_AD0 + 3) |       \
+   1 << (D_AD0 + 4) | 1 << (D_AD0 + 5) | 1 << (D_AD0 + 6) | 1 << (D_AD0 + 7)))
 
 typedef enum {
   CS1 = D_nCS1,
