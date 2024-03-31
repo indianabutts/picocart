@@ -1,5 +1,10 @@
-#include <stdio.h>
 #include "hardware/gpio.h"
+#include "pico/stdlib.h"
+#include "pico/time.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 // 3rd Party Includes
 #include "ff.h"
 // Project Includes
@@ -9,25 +14,23 @@
 
 bool read_requested = false;
 
-void cs_callback(uint gpio, uint32_t events) {
-    read_requested = true;
-}
+void __not_in_flash_func(cs_callback)(uint gpio, uint32_t events) { read_requested = true; }
 
-
-int main() {
+  int main() {
     stdio_init_all();
     core_gpio_init_pins();
-    core_gpio_setup_cs_irq(CS1, cs_callback);
-
+    gpio_set_irq_enabled_with_callback(CS1, GPIO_IRQ_EDGE_FALL, true,
+                                     cs_callback);
+    gpio_pull_up(C_PIN_nCS1);
+//    //core_gpio_setup_cs_irq(CS1, cs_callback);
+ 
     while (true) {
-      if (!read_requested) {
-	  continue;
+      if (read_requested) {
+        read_requested = false;
+        gpio_put(C_POUT_nWAIT, true);
+        gpio_put(C_POUT_nWAIT, false);
+        gpio_put(C_POUT_nWAIT, true);
       }
-      read_requested = false;
-      gpio_put(C_POUT_nWAIT, true);
-      gpio_put(C_POUT_nWAIT, false);
-      sleep_ms(1);
-      gpio_put(C_POUT_nWAIT, true);
     }
 }
 

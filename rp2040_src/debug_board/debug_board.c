@@ -67,7 +67,7 @@ int main() {
   debug_gpio_init_pins();
 
   debug_gpio_set_cs(D_nCS1, 1);
-  gpio_pull_up(D_nWAIT);
+
   gpio_set_irq_enabled_with_callback(D_nWAIT, GPIO_IRQ_EDGE_FALL, true, wait_callback);
 //  debug_gpio_setup_wait_irq(wait_callback);
 
@@ -100,8 +100,8 @@ int main() {
       break;
     }
 
-    print_standard_message(total_bytes, current_byte, read_data, correct_values,
-                             false);
+   // print_standard_message(total_bytes, current_byte, read_data, correct_values,
+     //                        false);
     
     debug_gpio_set_ad_dir(true);
     debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);

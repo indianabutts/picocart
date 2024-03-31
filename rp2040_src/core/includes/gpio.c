@@ -5,12 +5,13 @@
 
 void core_gpio_init_pins() {
   gpio_init_mask(C_GPIO_INIT_MASK);
+  gpio_set_dir_masked(C_GPIO_INIT_MASK, C_GPIO_DIR_MASK);
   gpio_pull_up(C_POUT_nDOE);
   gpio_pull_up(C_POUT_nDOUT);
   gpio_pull_up(C_POUT_nAHOE);
   gpio_pull_up(C_POUT_nALOE);
   gpio_pull_up(C_POUT_nWAIT);
-  gpio_set_dir_masked(C_GPIO_INIT_MASK, C_GPIO_DIR_MASK);
+ 
   return;
 }
 
@@ -52,7 +53,7 @@ void core_gpio_write_data(uint8_t data) {
 
 void core_gpio_setup_cs_irq(core_gpio_rom_sel_t select_signal,
                             gpio_irq_callback_t callback) {
-  gpio_set_irq_enabled_with_callback(select_signal, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_LEVEL_LOW, true,
+  gpio_set_irq_enabled_with_callback(select_signal, GPIO_IRQ_EDGE_FALL, true,
                                      callback);
   return;
     
