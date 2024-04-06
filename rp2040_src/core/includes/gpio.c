@@ -60,7 +60,7 @@ uint16_t core_gpio_read_address() {
   // sleep_us(1);
   address |= ((gpio_get_all() >> C_PIO_D0) & 0xFF);
 
-  printf("ADD: 0x%04X \r\n", address);
+  // printf("ADD: 0x%04X \r\n", address);
   return address;
 }
 

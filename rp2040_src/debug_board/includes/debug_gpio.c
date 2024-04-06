@@ -26,6 +26,9 @@ void debug_gpio_set_ad_dir(bool output) {
 
 void debug_gpio_set_address(uint16_t address) {
   gpio_put(D_nREAD, true);
+  gpio_put(D_nREAD, true);
+  gpio_put(D_nREAD, true);
+  gpio_put(D_nREAD, true);
     //First we set the upper address
   gpio_put_masked(D_GPIO_AD_MASK, (address & 0xFF00) >> 6);
   gpio_put(D_AH_PULSE, true);

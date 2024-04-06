@@ -32,8 +32,10 @@ void __not_in_flash_func(cs_callback)(uint gpio, uint32_t events) {
   }
   if(gpio==C_PIN_nREAD) {
     gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
+    gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
+    gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
   }
-  printf("%d\r\n", gpio);
+  // printf("%d\r\n", gpio);
 }
 void __not_in_flash_func(read_callback)(uint gpio, uint32_t events) { if(gpio==C_PIN_nREAD) gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD)); }
 
@@ -72,11 +74,12 @@ void __not_in_flash_func(read_callback)(uint gpio, uint32_t events) { if(gpio==C
   
 core_gpio_set_ad_dir(false);
 gpio_put(C_POUT_nDOUT, true);
+sleep_ms(100);
  while (true) {
     
     // gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD)); 
     if (read_requested) {
-      sleep_ms(100);
+   
       read_requested = false;
       gpio_put(C_POUT_nWAIT, true);
        gpio_put(C_POUT_nDOE, 1);

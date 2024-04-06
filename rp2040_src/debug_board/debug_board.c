@@ -90,12 +90,12 @@ int main() {
 
     data_ready = false;
     read_data = debug_gpio_read_data();
-    printf("D: 0x%04X\r\n", read_data);
+    // printf("D: 0x%04X\r\n", read_data);
     if (read_data == debug_data[current_byte]) {
       correct_values++;
     }
     print_standard_message(total_bytes, current_byte, read_data, correct_values,
-                             false);
+                              false);
     current_byte++;
     if (current_byte == total_bytes) {
       break;
