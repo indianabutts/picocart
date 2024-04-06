@@ -77,10 +77,20 @@ int main() {
 
   // Setup First Address before entering loop
 
-  debug_gpio_set_ad_dir(true);
-  debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
-  debug_gpio_set_ad_dir(false);
-  debug_gpio_set_cs(D_nCS1, 0);
+  // debug_gpio_set_ad_dir(true);
+  // debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
+  // debug_gpio_set_ad_dir(false);
+  // debug_gpio_set_cs(D_nCS1, 0);
+
+debug_gpio_set_ad_dir(true);
+  while(true){
+    //debug_gpio_set_ad_dir(true);
+    debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
+    //debug_gpio_set_ad_dir(false);
+    debug_gpio_set_cs(D_nCS1, 0);
+     debug_gpio_set_cs(D_nCS1, 1);
+    current_byte ++;
+  }
 
   while (true) {
       if (!data_ready) {
@@ -100,8 +110,8 @@ int main() {
       break;
     }
 
-   // print_standard_message(total_bytes, current_byte, read_data, correct_values,
-     //                        false);
+    print_standard_message(total_bytes, current_byte, read_data, correct_values,
+                             false);
     
     debug_gpio_set_ad_dir(true);
     debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);

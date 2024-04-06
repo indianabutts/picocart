@@ -1,9 +1,10 @@
 #include "debug_gpio.h"
 #include "hardware/gpio.h"
+#include "pico/time.h"
 #include <stdbool.h>
 
 void debug_gpio_init_pins() {
-  gpio_init_mask(D_GPIO_INIT_MASK);
+  gpio_init_mask(D_GPIO_INIT_MASK | D_GPIO_AD_MASK);
   gpio_pull_up(D_nSLTSEL);
   gpio_pull_up(D_nCS1);
   gpio_pull_up(D_nCS2);
@@ -24,12 +25,14 @@ void debug_gpio_set_ad_dir(bool output) {
 
 void debug_gpio_set_address(uint16_t address) {
     //First we set the upper address
-  gpio_put_masked(D_GPIO_AD_MASK, (address >> 8) & 0x0F);
+  gpio_put_masked(D_GPIO_AD_MASK, (address & 0xFF00) >> 6);
   gpio_put(D_AH_PULSE, true);
+  //sleep_us(1);
   gpio_put(D_AH_PULSE, false);
   // Then we will push the lower address
-  gpio_put_masked(D_GPIO_AD_MASK, address & 0x0F);
+  gpio_put_masked(D_GPIO_AD_MASK, (address & 0x00FF)<<2);
   gpio_put(D_AL_PULSE, true);
+  //sleep_us(1);
   gpio_put(D_AL_PULSE, false);
   return;
 }
