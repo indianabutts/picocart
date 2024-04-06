@@ -32,6 +32,7 @@ target_link_libraries(core PRIVATE
   pico_stdlib
   hardware_spi
   hardware_pio
+  pico_multicore
   FatFs_SPI
 )
 

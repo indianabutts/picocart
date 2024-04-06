@@ -6,8 +6,8 @@ add_executable(
   includes/debug_gpio.c
 )
 
-pico_enable_stdio_uart(debug_board 0)
-pico_enable_stdio_usb(debug_board 1)
+pico_enable_stdio_uart(debug_board 1)
+pico_enable_stdio_usb(debug_board 0)
 
 
 target_link_libraries(

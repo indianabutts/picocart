@@ -8,6 +8,7 @@ void debug_gpio_init_pins() {
   gpio_pull_up(D_nSLTSEL);
   gpio_pull_up(D_nCS1);
   gpio_pull_up(D_nCS2);
+  gpio_pull_up(D_nREAD);
   gpio_set_dir_masked(D_GPIO_INIT_MASK, D_GPIO_DIR_MASK);
   return;
 }
@@ -24,6 +25,7 @@ void debug_gpio_set_ad_dir(bool output) {
 }
 
 void debug_gpio_set_address(uint16_t address) {
+  gpio_put(D_nREAD, true);
     //First we set the upper address
   gpio_put_masked(D_GPIO_AD_MASK, (address & 0xFF00) >> 6);
   gpio_put(D_AH_PULSE, true);
@@ -38,7 +40,9 @@ void debug_gpio_set_address(uint16_t address) {
 }
 
 uint8_t debug_gpio_read_data() {
-  return (gpio_get_all() & D_GPIO_AD_MASK)>>D_AD0;
+  gpio_put(D_nREAD, false);
+  uint32_t gpio_status = gpio_get_all() & D_GPIO_AD_MASK;
+  return (gpio_status)>>D_AD0;
 }
 
 void debug_gpio_set_cs(debug_gpio_control_signal_t signal_to_assert, uint8_t value) {

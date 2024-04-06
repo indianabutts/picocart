@@ -27,20 +27,18 @@
    1 << C_POUT_nALOE | 1 << C_POUT_nDOE | 1 << C_POUT_nDOUT |                  \
    1 << C_POUT_nWAIT)
 
-#define C_GPIO_AD_MASK							\
-  (1 << (C_PIO_D0) | 1 << (C_PIO_D0 + 1) | 1 << (C_PIO_D0 + 2) |               \
-   1 << (C_PIO_D0 + 3) | 1 << (C_PIO_D0 + 4) | 1 << (C_PIO_D0 + 5) |           \
-   1 << (C_PIO_D0 + 6) | 1 << (C_PIO_D0 + 7))
+#define C_GPIO_AD_MASK	0xFF << C_PIO_D0
 
 #define C_GPIO_DIR_MASK                                                        \
   0 | (1 << C_POUT_nAHOE | 1 << C_POUT_nALOE | 1 << C_POUT_nDOE |              \
        1 << C_POUT_nDOUT | 1 << C_POUT_nWAIT)
 
 #define C_GPIO_ADR_OE_MASK (1 << C_POUT_nALOE | 1 << C_POUT_nAHOE | 1 << C_POUT_nDOE | 1 << C_POUT_nDOUT)
+
 #define C_GPIO_ALOE_VALUE 0xFFFF & (0 << C_POUT_nALOE)
 #define C_GPIO_AHOE_VALUE 0xFFFF & (0 << C_POUT_nAHOE)
 #define C_GPIO_DATA_OUT 0xFFFF & (0 << C_POUT_nDOE & 0 << C_POUT_nDOUT)
-#define C_GPIO_DATA_IN (0xFFFF | 1 << C_POUT_nDOE) & 0 << C_POUT_nDOUT
+#define C_GPIO_DATA_IN 0xFFFF  &  0 << C_POUT_nDOE
 
 
 

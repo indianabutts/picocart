@@ -24,7 +24,7 @@ void print_standard_message(uint16_t total_bytes, uint16_t current_byte,
                             uint8_t read_data, uint16_t correct_values,
                             bool show_complete) {
   ssd1306_clear(&display);
-  display_print(&display, 0, 0, 1, "PicoCart Debug v0.3");
+  display_print(&display, 0, 0, 1, "PicoCart Debug v0.4");
   display_fprint(&display, 0, 8, 1, 30, "Total Bytes: %d", total_bytes);
   display_fprint(&display, 0, 16, 1, 30, "ADD: 0x%04X",
                  DEBUG_BASE_ADDRESS + current_byte);
@@ -65,7 +65,6 @@ int main() {
   ssd1306_clear(&display);
   // Setup GPIO and IRQ
   debug_gpio_init_pins();
-
   debug_gpio_set_cs(D_nCS1, 1);
 
   gpio_set_irq_enabled_with_callback(D_nWAIT, GPIO_IRQ_EDGE_FALL, true, wait_callback);
@@ -77,24 +76,13 @@ int main() {
 
   // Setup First Address before entering loop
 
-  // debug_gpio_set_ad_dir(true);
-  // debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
-  // debug_gpio_set_ad_dir(false);
-  // debug_gpio_set_cs(D_nCS1, 0);
-
-debug_gpio_set_ad_dir(true);
-  while(true){
-    //debug_gpio_set_ad_dir(true);
-    debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
-    //debug_gpio_set_ad_dir(false);
-    debug_gpio_set_cs(D_nCS1, 0);
-     debug_gpio_set_cs(D_nCS1, 1);
-    current_byte ++;
-  }
+  debug_gpio_set_ad_dir(true);
+  debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
+  debug_gpio_set_ad_dir(false);
+  debug_gpio_set_cs(D_nCS1, 0);
 
   while (true) {
       if (!data_ready) {
-        ssd1306_clear(&display);
         continue;
       }
 
@@ -102,16 +90,18 @@ debug_gpio_set_ad_dir(true);
 
     data_ready = false;
     read_data = debug_gpio_read_data();
+    printf("D: 0x%04X\r\n", read_data);
     if (read_data == debug_data[current_byte]) {
       correct_values++;
     }
+    print_standard_message(total_bytes, current_byte, read_data, correct_values,
+                             false);
     current_byte++;
     if (current_byte == total_bytes) {
       break;
     }
 
-    print_standard_message(total_bytes, current_byte, read_data, correct_values,
-                             false);
+   
     
     debug_gpio_set_ad_dir(true);
     debug_gpio_set_address(DEBUG_BASE_ADDRESS + current_byte);
