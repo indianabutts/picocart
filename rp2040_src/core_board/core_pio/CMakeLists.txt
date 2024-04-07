@@ -16,13 +16,14 @@ pico_enable_stdio_usb(core_pio 0)
 target_include_directories(core_pio PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
   ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
+  ${CMAKE_CURRENT_LIST_DIR}/../shared_includes
 )
 
 
 target_sources(core_pio PRIVATE
   core_pio.c
-  includes/sd_hw.c
-  includes/gpio.c
+  ../shared_includes/sd_hw.c
+  ../shared_includes/gpio.c
 )
 
 

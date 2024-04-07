@@ -9,8 +9,8 @@
 #include "ff.h"
 // Project Includes
 //#include "includes/sd_hw.c"
-#include "includes/gpio.h"
-#include "includes/data.h"
+#include "../shared_includes/gpio.h"
+#include "../shared_includes/data.h"
 
 #define TEST_ADDRESS_OFFSET 0x4000
 
