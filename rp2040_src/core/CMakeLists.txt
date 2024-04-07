@@ -25,7 +25,6 @@ target_sources(core PRIVATE
   includes/gpio.c
 )
 
-add_subdirectory(libs/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI build)
 
 
 target_link_libraries(core PRIVATE

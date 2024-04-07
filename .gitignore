@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=kicad,macos,linux,windows,emacs,c++,vs
 
 compile_commands.json
+.vscode
 
 ### C++ ###
 # Prerequisites

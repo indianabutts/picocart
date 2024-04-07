@@ -35,9 +35,19 @@ add_compile_options(
 #  -Wno-unused-function
 )
 
+
 if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-Wno-maybe-uninitialized)
 endif()
 
 add_subdirectory(debug_board)
 add_subdirectory(core)
+add_subdirectory(core_pio)
+add_subdirectory(libs/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI build)
+
+add_custom_target(
+    copy-compile-commands ALL
+    ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${CMAKE_CURRENT_LIST_DIR}
+    )
