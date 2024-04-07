@@ -41,9 +41,7 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 endif()
 
 add_subdirectory(debug_board)
-add_subdirectory(core)
-add_subdirectory(core_pio)
-add_subdirectory(libs/no-OS-FatFS-SD-SPI-RPi-Pico/FatFs_SPI build)
+add_subdirectory(core_board)
 
 add_custom_target(
     copy-compile-commands ALL
