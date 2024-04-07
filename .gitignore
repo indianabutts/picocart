@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/kicad,macos,linux,windows,emacs,c++,vs
 # Edit at https://www.toptal.com/developers/gitignore?templates=kicad,macos,linux,windows,emacs,c++,vs
 
+compile_commands.json
+
 ### C++ ###
 # Prerequisites
 *.d

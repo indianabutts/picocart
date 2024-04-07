@@ -11,7 +11,6 @@
 //#include "includes/sd_hw.c"
 #include "includes/gpio.h"
 #include "includes/data.h"
-#include "pico/multicore.h"
 
 #define TEST_ADDRESS_OFFSET 0x4000
 
@@ -69,7 +68,6 @@ void __not_in_flash_func(read_callback)(uint gpio, uint32_t events) { if(gpio==C
   //        gpio_put(C_POUT_nWAIT, false);
   //        gpio_put(C_POUT_nWAIT, true);
   //   printf("%d %d", current_address, data);
-
   // }
   
 core_gpio_set_ad_dir(false);

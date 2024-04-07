@@ -67,13 +67,12 @@ uint16_t core_gpio_read_address() {
 void core_gpio_write_data(uint8_t data) {
   core_gpio_set_ad_dir(true);
   // Put the data on the bus
-  for(int i =0; i < 8; i++){
-    gpio_put(C_PIO_D0+i, (data>>i)&0x01);
-  }
+
   gpio_put(C_POUT_nDOUT, 0);
   gpio_put(C_POUT_nDOE, 0);
-  //gpio_put_masked(C_GPIO_AD_MASK, 0 | (data << (C_PIO_D0 + 7)));
-  //gpio_put_masked(C_GPIO_ADR_OE_MASK, C_GPIO_DATA_OUT);
+  //gpio_put_masked(C_GPIO_ADR_OE_MASK, C_GPIO_DATA_OUT); 
+  gpio_put_masked(C_GPIO_AD_MASK, (data << C_PIO_D0));
+
 }
 
 void core_gpio_setup_cs_irq(core_gpio_rom_sel_t select_signal,
