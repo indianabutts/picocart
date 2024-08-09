@@ -21,12 +21,14 @@ void __not_in_flash_func(cs_callback)(uint gpio, uint32_t events)
   if (gpio == C_PIN_nCS1)
   {
     read_requested = true;
+    return;
   }
   if (gpio == C_PIN_nREAD)
   {
     gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
     gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
     gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
+    return;
   }
 }
 
@@ -37,48 +39,43 @@ void __not_in_flash_func(read_callback)(uint gpio, uint32_t events)
 }
 
 int main()
+
+
 {
   stdio_init_all();
   // Set up our UART with a basic baud rate.
-  uart_init(uart0, 115200);
+  // uart_init(uart0, 115200);
 
-  // Set the TX and RX pins by using the function select on the GPIO
-  // Set datasheet for more information on function select
-  gpio_set_function(0, GPIO_FUNC_UART);
-  gpio_set_function(1, GPIO_FUNC_UART);
+  // // Set the TX and RX pins by using the function select on the GPIO
+  // // Set datasheet for more information on function select
+  // gpio_set_function(0, GPIO_FUNC_UART);
+  // gpio_set_function(1, GPIO_FUNC_UART);
   core_gpio_init_pins();
+  gpio_put(C_POUT_nWAIT, false);
 
   gpio_set_irq_enabled_with_callback(CS1, GPIO_IRQ_EDGE_FALL, true,
                                      cs_callback);
   gpio_set_irq_enabled_with_callback(C_PIN_nREAD, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true,
                                      cs_callback);
-  gpio_pull_up(C_PIN_nCS1);
   gpio_put(C_POUT_nDOE, 1);
 
-  volatile uint16_t current_address = 0;
-
-  volatile uint8_t data = 0;
-
+  uint16_t current_address = 0;
   core_gpio_set_ad_dir(false);
   gpio_put(C_POUT_nDOUT, true);
-  sleep_ms(100);
+  gpio_put(C_POUT_nWAIT, true);
   while (true)
   {
 
     // gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
     if (read_requested)
     {
-
       read_requested = false;
-      gpio_put(C_POUT_nWAIT, true);
+      // gpio_put(C_POUT_nWAIT, true);
       gpio_put(C_POUT_nDOE, 1);
-
       current_address = core_gpio_read_address();
-      // gpio_put(C_POUT_nDOE, 1);
       gpio_put(C_POUT_nALOE, 1);
       gpio_put(C_POUT_nAHOE, 1);
-      data = debug_data[current_address - TEST_ADDRESS_OFFSET];
-      core_gpio_write_data(data);
+      core_gpio_write_data(debug_data[current_address - TEST_ADDRESS_OFFSET]);
       gpio_put(C_POUT_nDOE, 0);
       gpio_put(C_POUT_nWAIT, false);
     }
