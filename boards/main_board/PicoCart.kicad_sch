@@ -12916,6 +12916,16 @@
 		)
 		(uuid "c43d7b64-8fff-4288-ba07-995c6354dd17")
 	)
+	(text "/SLTSEL & /WRITE Can be \nused to determine direction"
+		(exclude_from_sim yes)
+		(at 110.998 90.678 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "f682a12e-26ed-4b38-8c03-f90b9415ff7b")
+	)
 	(label "E_A7"
 		(at 237.49 72.39 0)
 		(fields_autoplaced yes)
