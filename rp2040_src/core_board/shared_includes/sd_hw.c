@@ -7,17 +7,17 @@
 // We are going to use SPI 0, and allocate it to the following GPIO pins
 // Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
 #define SPI_PORT spi1
-#define PIN_MISO 8
-#define PIN_CS   9
-#define PIN_SCK  10
-#define PIN_MOSI 11
+#define PIN_MISO 16
+#define PIN_CS   17
+#define PIN_SCK  18
+#define PIN_MOSI 19
 
 static spi_t spis[] = {
     {
 	.hw_inst = spi1,
-	.miso_gpio = 8,
-	.mosi_gpio = 11,
-	.sck_gpio = 10,
+	.miso_gpio = PIN_MISO,
+	.mosi_gpio = PIN_MOSI,
+	.sck_gpio = PIN_SCK,
 	.baud_rate = 12500 * 1000
     }
 };
@@ -26,7 +26,7 @@ static sd_card_t sd_cards[] = {
     {
 	.pcName = "0:",
 	.spi = &spis[0],
-	.ss_gpio = 9,
+	.ss_gpio = PIN_CS,
 	.use_card_detect = false
     }
 };

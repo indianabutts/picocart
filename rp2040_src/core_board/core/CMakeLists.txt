@@ -7,10 +7,10 @@ add_executable(
 #pico_generate_pio_header(core ${CMAKE_CURRENT_LIST_DIR}/includes/address_bus/address_bus.pio)
 
 pico_set_program_name(core "MSX-2040")
-pico_set_program_version(core "0.1")
+pico_set_program_version(core "0.2")
 
-pico_enable_stdio_uart(core 1)
-pico_enable_stdio_usb(core 0)
+pico_enable_stdio_uart(core 0)
+pico_enable_stdio_usb(core 1)
 
 # Add the standard include files to the build
 target_include_directories(core PRIVATE

@@ -14,33 +14,12 @@
 
 #define TEST_ADDRESS_OFFSET 0x4000
 
-volatile bool read_requested = false;
-
-void __not_in_flash_func(cs_callback)(uint gpio, uint32_t events)
+void __not_in_flash_func(read_callback)(uint test)
 {
-  if (gpio == C_PIN_nCS1)
-  {
-    read_requested = true;
-    return;
-  }
-  if (gpio == C_PIN_nREAD)
-  {
-    gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
-    gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
-    gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
-    return;
-  }
-}
-
-void __not_in_flash_func(read_callback)(uint gpio, uint32_t events)
-{
-  if (gpio == C_PIN_nREAD)
-    gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
+ return; 
 }
 
 int main()
-
-
 {
   stdio_init_all();
   // Set up our UART with a basic baud rate.
@@ -53,31 +32,15 @@ int main()
   core_gpio_init_pins();
   gpio_put(C_POUT_nWAIT, false);
 
-  gpio_set_irq_enabled_with_callback(CS1, GPIO_IRQ_EDGE_FALL, true,
-                                     cs_callback);
-  gpio_set_irq_enabled_with_callback(C_PIN_nREAD, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true,
-                                     cs_callback);
   gpio_put(C_POUT_nDOE, 1);
 
   uint16_t current_address = 0;
-  core_gpio_set_ad_dir(false);
-  gpio_put(C_POUT_nDOUT, true);
-  gpio_put(C_POUT_nWAIT, true);
+  core_gpio_setup_ad_read();
   while (true)
   {
-
-    // gpio_put(C_POUT_nDOUT, !gpio_get(C_PIN_nREAD));
-    if (read_requested)
-    {
-      read_requested = false;
-      // gpio_put(C_POUT_nWAIT, true);
-      gpio_put(C_POUT_nDOE, 1);
+    if (gpio_get(C_PIN_nSLTSEL)==0){
       current_address = core_gpio_read_address();
-      gpio_put(C_POUT_nALOE, 1);
-      gpio_put(C_POUT_nAHOE, 1);
-      core_gpio_write_data(debug_data[current_address - TEST_ADDRESS_OFFSET]);
-      gpio_put(C_POUT_nDOE, 0);
-      gpio_put(C_POUT_nWAIT, false);
+      printf("ADD: 0x%04X \r\n", current_address);
     }
   }
 }
