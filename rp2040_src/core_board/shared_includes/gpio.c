@@ -15,19 +15,41 @@ void _gpio_set_ad_dir(bool output) {
 }
 
 void core_gpio_init_pins() {
-  gpio_init_mask(C_GPIO_INIT_MASK | C_GPIO_AD_MASK);
+  // gpio_init_mask(C_GPIO_INIT_MASK | C_GPIO_AD_MASK);
+  //gpio_set_dir_masked(C_GPIO_INIT_MASK, C_GPIO_DIR_MASK);
+
+  gpio_init(C_PIN_nWRITE);
+  gpio_init(C_PIN_nSLTSEL);
+  gpio_init(C_POUT_nDOUT);
+  gpio_init(C_POUT_nWAIT);
+  gpio_init(C_POUT_nAOE);
   gpio_init(C_POUT_nDOE);
-  gpio_set_dir_masked(C_GPIO_INIT_MASK, C_GPIO_DIR_MASK);
+
+  gpio_set_dir(C_PIN_nSLTSEL, false);
+  gpio_set_dir(C_PIN_nWRITE, false);
+  gpio_set_dir(C_POUT_nAOE, true);
+  gpio_set_dir(C_POUT_nDOE, true);
+  gpio_set_dir(C_POUT_nDOUT, true);
+  gpio_set_dir(C_POUT_nWAIT, true);
+  
+  for (uint8_t i = 0; i<8; i++){
+    gpio_init(C_PIO_D0+i);
+    gpio_set_dir(C_PIO_D0+i, false);
+  }
   gpio_pull_up(C_POUT_nDOE);
   gpio_pull_up(C_POUT_nDOUT);
-  gpio_pull_up(C_POUT_nWAIT);
+  gpio_pull_down(C_POUT_nWAIT);
+  gpio_put(C_POUT_nWAIT, false);
   gpio_put(C_POUT_nDOE,true);
   return;
 }
 
 void core_gpio_setup_ad_read(){
   _gpio_set_ad_dir(false);
-  gpio_put_masked((1<<C_POUT_nDOUT) | (1 << C_POUT_nDOE) | (1<<C_POUT_nAOE), ((1<<C_POUT_nDOUT) | (1 << C_POUT_nDOE)) & (0<<C_POUT_nAOE));
+  gpio_put(C_POUT_nAOE,false);
+  gpio_put(C_POUT_nDOE, true);
+  gpio_put(C_POUT_nDOUT, true);
+  //gpio_put_masked((1<<C_POUT_nDOUT) | (1 << C_POUT_nDOE) | (1<<C_POUT_nAOE), ((1<<C_POUT_nDOUT) | (1 << C_POUT_nDOE)) & (0<<C_POUT_nAOE));
   return;
 }
 

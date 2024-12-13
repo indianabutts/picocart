@@ -15,19 +15,14 @@
 #define C_POUT_nAOE 27
 #define C_POUT_nDOE 28
 
+#define C_GPIO_INIT_MASK 0xFFFF0E07
+#define C_GPIO_AD_MASK	0xFFFF0000
+#define C_GPIO_TXVR_MASK 0x00000203
 
-#define C_GPIO_INIT_MASK                                         \
-    (1 << C_PIN_nSLTSEL | 1 << C_PIN_nWRITE | 1 << C_POUT_nAOE |	\
-     1 << C_POUT_nDOE | 1 << C_POUT_nDOUT |				     \
-     1 << C_POUT_nWAIT)
-
-#define C_GPIO_AD_MASK	0xFFFF
-
-#define C_GPIO_DIR_MASK                                   \
-  0 | (1 << C_POUT_nAOE | 1 << C_POUT_nDOE |              \
-       1 << C_POUT_nDOUT | 1 << C_POUT_nWAIT)
-
-#define C_GPIO_ADR_OE_MASK (1 << C_POUT_nAOE | 1 << C_POUT_nDOE | 1 << C_POUT_nDOUT)
+#define C_GPIO_DIR_VALUE 0x00000207
+#define C_GPIO_ADR_IN_VALUE 0x00000201
+#define C_GPIO_DATA_READ_VALUE 0x00000202
+#define C_GPIO_DATA_WRITE_VALUE 0x00000002
 
 
 void core_gpio_init_pins();

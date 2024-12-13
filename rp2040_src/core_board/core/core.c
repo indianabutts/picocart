@@ -12,6 +12,7 @@
 #include "../shared_includes/gpio.h"
 #include "../shared_includes/data.h"
 
+
 #define TEST_ADDRESS_OFFSET 0x4000
 
 void __not_in_flash_func(read_callback)(uint test)
@@ -21,7 +22,10 @@ void __not_in_flash_func(read_callback)(uint test)
 
 int main()
 {
+  // vreg_set_voltage(VREG_VOLTAGE_1_30);
+  // set_sys_clock_pll(1600000000, 4, 1);
   stdio_init_all();
+  
   // Set up our UART with a basic baud rate.
   // uart_init(uart0, 115200);
 
@@ -30,18 +34,15 @@ int main()
   // gpio_set_function(0, GPIO_FUNC_UART);
   // gpio_set_function(1, GPIO_FUNC_UART);
   core_gpio_init_pins();
-  gpio_put(C_POUT_nWAIT, false);
-
-  gpio_put(C_POUT_nDOE, 1);
-
   uint16_t current_address = 0;
   core_gpio_setup_ad_read();
+  gpio_put(C_POUT_nWAIT, 1);
   while (true)
   {
     if (gpio_get(C_PIN_nSLTSEL)==0){
-      current_address = core_gpio_read_address();
-      printf("ADD: 0x%04X \r\n", current_address);
-    }
+       current_address = core_gpio_read_address();
+       printf("ADD: 0x%04X \r\n", current_address);
+     }
   }
 }
 /*
