@@ -15,15 +15,36 @@
 
 #define TEST_ADDRESS_OFFSET 0x4000
 
-void __not_in_flash_func(read_callback)(uint test)
+void __not_in_flash_func(read_callback)()
 {
+   uint16_t current_address = 0;
+  uint8_t data = 0;
+  core_gpio_setup_ad_read();
+  gpio_put(C_POUT_nWAIT, 1);
+  bool previous_state = false;
+  while (true)
+  {
+    if (gpio_get(C_PIN_nSLTSEL)==0){
+      if (!previous_state) {
+       current_address = core_gpio_read_address();
+       core_gpio_setup_data_write();
+       data = debug_data[current_address-TEST_ADDRESS_OFFSET];
+       core_gpio_write_data(data);
+        // printf("ADD: 0x%04X    DATA: 0x%02X \r\n", current_address,data);
+       previous_state=true;
+      }
+      continue;
+     }
+     else {
+      previous_state=false;
+      core_gpio_setup_ad_read();
+     }
+  }
  return; 
 }
 
 int main()
 {
-  // vreg_set_voltage(VREG_VOLTAGE_1_30);
-  // set_sys_clock_pll(1600000000, 4, 1);
   stdio_init_all();
   
   // Set up our UART with a basic baud rate.
@@ -34,16 +55,7 @@ int main()
   // gpio_set_function(0, GPIO_FUNC_UART);
   // gpio_set_function(1, GPIO_FUNC_UART);
   core_gpio_init_pins();
-  uint16_t current_address = 0;
-  core_gpio_setup_ad_read();
-  gpio_put(C_POUT_nWAIT, 1);
-  while (true)
-  {
-    if (gpio_get(C_PIN_nSLTSEL)==0){
-       current_address = core_gpio_read_address();
-       printf("ADD: 0x%04X \r\n", current_address);
-     }
-  }
+  read_callback();
 }
 /*
 

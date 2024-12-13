@@ -27,18 +27,18 @@ void core_gpio_init_pins() {
 
 void core_gpio_setup_ad_read(){
   _gpio_set_ad_dir(false);
-  gpio_set_dir_masked(C_GPIO_TXVR_MASK, C_GPIO_ADDR_IN_VALUE);
+  gpio_put_masked(C_GPIO_TXVR_MASK, C_GPIO_ADDR_IN_VALUE);
   return;
 }
 
 void core_gpio_setup_data_read(){
   _gpio_set_ad_dir(false);
-  gpio_set_dir_masked(C_GPIO_TXVR_MASK, C_GPIO_DATA_READ_VALUE);
+  gpio_put_masked(C_GPIO_TXVR_MASK, C_GPIO_DATA_READ_VALUE);
   return;
 }
 void core_gpio_setup_data_write(){
   _gpio_set_ad_dir(true);
-  gpio_set_dir_masked(C_GPIO_TXVR_MASK, C_GPIO_DATA_WRITE_VALUE);
+  gpio_put_masked(C_GPIO_TXVR_MASK, C_GPIO_DATA_WRITE_VALUE);
   return;
 }
 void core_gpio_set_wait_signal(bool value) { gpio_put(C_POUT_nWAIT, value); }
