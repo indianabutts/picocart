@@ -18,7 +18,8 @@ void core_gpio_init_pins() {
   gpio_init_mask(C_GPIO_INIT_MASK);
   gpio_set_dir_masked(C_GPIO_INIT_MASK,C_GPIO_DIR_VALUE);
   gpio_pull_up(C_POUT_nDOE);
-  gpio_pull_up(C_POUT_nDOUT);
+  gpio_disable_pulls(C_PIN_nSLTSEL);
+  gpio_disable_pulls(C_PIN_nREAD);
   gpio_pull_down(C_POUT_nWAIT);
   gpio_put(C_POUT_nWAIT, false);
   gpio_put(C_POUT_nDOE,true);

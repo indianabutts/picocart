@@ -1,4 +1,5 @@
 #include "hardware/gpio.h"
+#include "hardware/clocks.h"
 #include "pico/stdlib.h"
 #include "pico/time.h"
 #include <stdbool.h>
@@ -11,29 +12,32 @@
 // #include "includes/sd_hw.c"
 #include "../shared_includes/gpio.h"
 #include "../shared_includes/data.h"
-
+#include "hardware/vreg.h"
 
 #define TEST_ADDRESS_OFFSET 0x4000
 
-void __not_in_flash_func(read_callback)()
+void __time_critical_func(read_callback)()
 {
-   uint16_t current_address = 0;
+  uint16_t current_address = 0;
   uint8_t data = 0;
+  uint32_t gpio=0;
   core_gpio_setup_ad_read();
   gpio_put(C_POUT_nWAIT, 1);
   bool previous_state = false;
-  while (true)
+  while (1)
   {
-    if (gpio_get(C_PIN_nSLTSEL)==0){
+    gpio = gpio_get_all();
+    if ((gpio & 1<<C_PIN_nSLTSEL) == 0){
       if (!previous_state) {
-       current_address = core_gpio_read_address();
-       core_gpio_setup_data_write();
+       current_address = gpio & C_GPIO_AD_MASK;
+       if (current_address >0x7FFF || current_address<TEST_ADDRESS_OFFSET || (gpio & 0x00100000) ==0){continue;};
        data = debug_data[current_address-TEST_ADDRESS_OFFSET];
        core_gpio_write_data(data);
-        // printf("ADD: 0x%04X    DATA: 0x%02X \r\n", current_address,data);
+       core_gpio_setup_data_write();
+      printf("ADD: 0x%04X    DATA: 0x%02X \r\n", current_address,data);
        previous_state=true;
+
       }
-      continue;
      }
      else {
       previous_state=false;
@@ -46,6 +50,7 @@ void __not_in_flash_func(read_callback)()
 int main()
 {
   stdio_init_all();
+  set_sys_clock_khz(250000, true);
   
   // Set up our UART with a basic baud rate.
   // uart_init(uart0, 115200);

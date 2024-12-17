@@ -1,0 +1,98 @@
+.define public GPIO_ENBL   21  // SLT_SEL
+.define public GPIO_ADDR   0
+.define public GPIO_DATA   0
+.define public GPIO_WnR     20
+.define public GPIO_RnW    22
+.define public GPIO_nDOE   28
+.define public GPIO_nAOE   27
+
+.define public SIZE_ADDRESS 23
+.define public SIZE_DATA    8
+
+.define public SM_ADDRESS 0
+.define public SM_READ     1  // From MSX Perspective
+.define public SM_WRITE    2  // From MSX Perspective
+
+.define public IRQ_WRITE   4
+.program address
+
+.wrap_target
+idle:
+    set pins, 0b01 //enable data transceiver
+    wait 1 gpio GPIO_ENBL   /// wait for SLT_SEL to deassert 
+    set pins, 0b10  //enable address transceiver
+    wait 0 gpio GPIO_ENBL
+    in pins, SIZE_ADDRESS
+    jmp pin idle
+    irq IRQ_WRITE
+.wrap
+
+% c-sdk {
+
+// Helper function (for use in C program) to initialize this PIO program
+static inline void address_program_set_config(pio_sm_config *c) {
+
+    sm_config_set_in_pins(c, GPIO_ADDR);
+    
+    // shift_right: false
+    // autopush: true
+    // push_threshold: SIZE_ADDRESS
+    sm_config_set_in_shift(c, false, true, SIZE_ADDRESS);
+    
+    // set_base: GPIO_nAOE
+    // set_size: 2
+    sm_config_set_set_pins(c, GPIO_nAOE, 2);
+
+    //pin: GPIO_WnR
+    sm_config_set_jmp_pin(c, GPIO_RnW);
+}
+
+%}
+
+
+.program write
+.wrap_target
+    
+    wait 1 irq IRQ_WRITE[31]
+
+    in pins, SIZE_DATA
+
+.wrap
+
+% c-sdk {
+    static inline void write_program_set_config(pio_sm_config *c){
+        //in_base: GPIO_DATA
+        sm_config_set_in_pins(c, GPIO_DATA);
+
+        // shift_right: false
+        // autopush:    true
+        // push_threshold: SIZE_DATA
+        sm_config_set_in_shift(c, false, true, SIZE_DATA);
+    }    
+%}
+
+.program read
+.wrap_target
+    pull block // Pull data into OSR, block on empty FIFO
+    out pins, SIZE_DATA     // Shift OSR onto D0-D7
+    mov osr, ~null
+    out pindirs, SIZE_DATA
+
+    wait 1 gpio GPIO_ENBL /// wait for SLTSEL to rise
+    mov osr, null   // move 0x0 to OSR and disable data address_bus
+    out pindirs, SIZE_DATA  // disable d0-d7
+.wrap
+
+% c-sdk {
+    static inline void read_program_set_config(pio_sm_config *c){
+        // out_base : GPIO_DATA
+        // out_count: SIZE_DATA
+        sm_config_set_out_pins(c, GPIO_DATA, SIZE_DATA);
+
+        // shift_right: true
+        // autopull: false
+        // pull_threshold: SIZE_DATA
+        sm_config_set_out_shift(c, true, false, SIZE_DATA);
+    }
+
+%}
